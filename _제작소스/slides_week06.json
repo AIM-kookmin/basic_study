@@ -1,0 +1,506 @@
+[
+  {
+    "n": 1,
+    "title": "VAE ② 생성 제어와 잠재 공간 실험",
+    "section": "오프닝",
+    "time": "00–02분 · 이번 주에 만들 결과물 확인",
+    "bullets": [
+      "β-VAE 실험을 같은 손실 척도로 비교한다.",
+      "posterior collapse의 징후와 한계를 설명한다.",
+      "조건부 VAE로 숫자 라벨을 제어하며 생성한다."
+    ],
+    "focal": "LATENT\n→ CONTROL",
+    "note": "5주차의 손실과 재매개화 코드를 독립적으로 다시 포함한다. 실습은 β 비교와 작은 CVAE 학습을 수행한다. GPU가 없으면 각 학습 epoch와 TRAIN_N을 줄이고 기본 분석을 우선한다."
+  },
+  {
+    "n": 2,
+    "title": "90분 수업 지도",
+    "section": "운영",
+    "time": "02–05분 · 실습 노트북 열기",
+    "bullets": [
+      "00–05 도입 · 05–20 개념 · 20–35 수식과 손계산",
+      "35–50 구현 설계 · 50–75 실습 · 75–85 분석",
+      "85–90 회고 · 부록과 자율 과제는 수업 이후"
+    ],
+    "focal": "90 MIN  /  개념 45 + 실습 25 + 분석·회고 20",
+    "note": "시작 전에 실습의 환경 셀과 데이터 다운로드를 실행해 둔다. 핵심 구간의 종료 시간을 지키고 심화 질문은 부록으로 연결한다. 실습은 실행만 하는 시간이 아니라 예측, 관찰, 설명까지 포함한다."
+  },
+  {
+    "n": 3,
+    "title": "β가 바꾸는 것",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "reconstruction과 KL의 상대 중요도를 조절한다.",
+      "β=1은 표준 VAE의 negative ELBO다.",
+      "β≠1 목적값을 표준 ELBO와 동일시하지 않는다."
+    ],
+    "focal": "L_β = reconstruction + β × KL",
+    "note": "β가 다른 모델의 total loss 숫자를 그대로 비교하면 목적함수 자체가 달라 공정하지 않다. 공통 β=1 평가와 recon, KL을 따로 보고한다."
+  },
+  {
+    "n": 4,
+    "title": "압축과 복원의 trade-off",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "KL을 강하게 제한하면 z가 담는 정보가 줄 수 있다.",
+      "재구성 품질이 떨어질 수 있다.",
+      "잠재 공간 구조가 나아지는지는 관찰과 평가가 필요하다."
+    ],
+    "focal": "작은 β / 큰 β / 실제 관측 결과",
+    "note": "β가 크면 반드시 disentanglement가 생긴다는 주장은 하지 않는다. 데이터, 아키텍처, 최적화 등 여러 조건에 의존한다."
+  },
+  {
+    "n": 5,
+    "title": "posterior collapse",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "q(z∣x)가 prior에 가까워지고 decoder가 z를 덜 쓸 수 있다.",
+      "전체 KL뿐 아니라 차원별 KL과 z 변화 효과를 본다.",
+      "KL이 작다는 사실 하나로 collapse를 확정하지 않는다."
+    ],
+    "focal": "KL↓ + latent 반응↓ + reconstruction 확인",
+    "note": "강한 decoder나 학습 역학 등이 관련될 수 있다. 간단한 MLP MNIST에서 항상 collapse가 나타나는 것은 아니다. 나타나지 않아도 실험이 실패한 것이 아니다."
+  },
+  {
+    "n": 6,
+    "title": "KL warm-up",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "초기에 KL 가중치를 작게 두고 점차 올린다.",
+      "먼저 재구성 경로가 학습되도록 유도할 수 있다.",
+      "최종 목적과 스케줄을 모두 기록한다."
+    ],
+    "focal": "β(step) = β_target × min(1, step / warmup_steps)",
+    "note": "warm-up이 모든 collapse를 해결하지는 않는다. total loss 곡선은 β가 변하므로 단순히 숫자가 증가했다고 악화로 판단하지 않는다."
+  },
+  {
+    "n": 7,
+    "title": "조건부 생성의 아이디어",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "숫자 라벨 y를 encoder와 decoder에 함께 준다.",
+      "latent는 라벨 외의 세부 변동을 표현할 수 있다.",
+      "생성 때 원하는 y와 prior z를 조합한다."
+    ],
+    "focal": "FLOW:x + y>q(z∣x,y)>z + y>p(x∣z,y)",
+    "note": "기본 CVAE prior는 y와 무관한 N(0,I)로 둔다. 조건부 prior를 따로 학습하는 설계도 있지만 핵심 범위 밖이다. 라벨은 분류 target이 아닌 조건 입력이다."
+  },
+  {
+    "n": 8,
+    "title": "라벨과 스타일 분리의 한계",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "같은 z에서 y만 바꾸어 생성 결과를 본다.",
+      "같은 y에서 z를 바꾸어 다양성을 본다.",
+      "z가 순수한 스타일만 담는다는 보장은 없다."
+    ],
+    "focal": "행: y 고정 / 열: z 고정",
+    "note": "CVAE 구조만으로 인과적 disentanglement가 증명되지 않는다. 숫자가 바뀌지 않거나 흐려지면 학습 예산과 조건 사용 여부를 점검한다."
+  },
+  {
+    "n": 9,
+    "title": "생성 모델 평가의 여러 축",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "reconstruction은 입력 보존을 본다.",
+      "prior 샘플은 생성 분포를 본다.",
+      "다양성·조건 일치·반복·실패 사례를 함께 본다."
+    ],
+    "focal": "한 장의 좋은 샘플보다 체계적인 격자",
+    "note": "단순한 격자 관찰은 정량 평가를 대체하지 않는다. 이 수업에서는 계산 예산과 데이터 규모에 맞는 기본 진단에 집중한다."
+  },
+  {
+    "n": 10,
+    "title": "β 비교의 공통 척도",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "훈련은 β별 목적함수를 사용한다.",
+      "평가 표에는 recon, KL, recon+KL을 모두 쓴다.",
+      "같은 표본과 같은 평가 난수를 사용한다."
+    ],
+    "focal": "training: R+βK / common evaluation: R+K",
+    "note": "공통 β=1 지표는 MC negative ELBO estimate라고 명시한다. 모델별 beta objective는 서로 다른 최적화 대상이며 작은 값 순으로 순위를 매기지 않는다."
+  },
+  {
+    "n": 11,
+    "title": "차원별 KL",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "latent 축 j마다 KL_j를 구한다.",
+      "배치 평균 후 막대그래프로 시각화한다.",
+      "합하면 평균 전체 KL과 일치해야 한다."
+    ],
+    "focal": "KL_j = ½ E_x[μ_j² + exp(logvar_j) − 1 − logvar_j]",
+    "note": "latent_dim=8에서 어떤 차원들이 쓰이는지 비교한다. 임의 threshold의 active units는 진단용이며 절대적인 품질 기준이 아니다."
+  },
+  {
+    "n": 12,
+    "title": "조건부 ELBO",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "qφ(z∣x,y)에서 z를 뽑는다.",
+      "decoder likelihood는 pθ(x∣z,y)다.",
+      "단순한 경우 prior는 여전히 p(z)=N(0,I)다."
+    ],
+    "focal": "ELBO(x,y)=E_q[log pθ(x∣z,y)]−KL(qφ(z∣x,y)∥p(z))",
+    "note": "label one-hot을 입력에 concat해 구현한다. label을 손실 target으로 넣는 cross entropy를 추가하지 않아도 조건부 VAE를 학습할 수 있다."
+  },
+  {
+    "n": 13,
+    "title": "CVAE shape 계산",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "x를 펼치면 784차원이다.",
+      "10종 라벨의 one-hot을 붙이면 794차원이다.",
+      "decoder 입력은 latent_dim+10차원이다."
+    ],
+    "focal": "encoder input: [B,794] / decoder input: [B,Z+10]",
+    "note": "one_hot의 dtype을 이미지 dtype과 맞춘다. 라벨은 0~9의 long tensor로 유지하고 내부에서 float one-hot으로 바꾼다. batch 크기도 일치해야 한다."
+  },
+  {
+    "n": 14,
+    "title": "보간과 traversal은 다르다",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "보간은 두 z 사이의 경로를 따른다.",
+      "traversal은 한 z의 특정 좌표만 변화시킨다.",
+      "둘 다 prior sampling과 다른 탐색 절차다."
+    ],
+    "focal": "interpolate: (1−α)z_a+αz_b / traverse: z_j←v",
+    "note": "두 점 사이 선분이 항상 높은 prior 밀도 영역을 지나거나 의미적으로 선형이라는 보장은 없다. 고차원 정규분포에서 원점과 typical set의 차이는 심화 토론 주제다."
+  },
+  {
+    "n": 15,
+    "title": "통계적 비교의 최소 조건",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "같은 train/val 분할과 학습 예산을 사용한다.",
+      "가능하면 여러 seed로 학습을 반복한다.",
+      "지표의 평균과 분산, 실패 예시를 보고한다."
+    ],
+    "focal": "평균 ± 표준편차 + 반복 횟수",
+    "note": "수업 기본 실행은 시간이 제한돼 seed 하나다. 이를 통계적 우월성 증거로 과장하지 않는다. 자율 과제에서 seed 반복을 확장한다."
+  },
+  {
+    "n": 16,
+    "title": "β 실험 구성",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "latent_dim=8의 동일한 VAE를 만든다.",
+      "β=0.25, 1, 4로 각각 학습한다.",
+      "같은 seed 초기화와 고정 평가 표본을 사용한다."
+    ],
+    "focal": "조건 3개 × 동일 epoch × 동일 분할",
+    "note": "3개 모델은 처음부터 새로 학습한다. β를 바꾸면서 이전 가중치를 이어 학습하면 독립된 β 효과 비교가 아니다. optimizer도 새로 만든다."
+  },
+  {
+    "n": 17,
+    "title": "공통 z를 재사용하기",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "모든 β 모델에 같은 prior z를 넣는다.",
+      "같은 validation 이미지의 μ 재구성을 나란히 둔다.",
+      "훈련 목표와 공통 평가 척도를 구분해 저장한다."
+    ],
+    "focal": "비교 격자: 행=조건 / 열=같은 입력 또는 z",
+    "note": "같은 z의 의미가 서로 다른 모델에서 정확히 대응하는 것은 아니다. 난수 차이를 줄이는 시각화이지 스타일 정렬 보장은 아니다."
+  },
+  {
+    "n": 18,
+    "title": "CVAE 구현의 변경점",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "encoder 입력에 one-hot label을 concat한다.",
+      "decoder 입력에도 같은 label을 concat한다.",
+      "학습·평가·생성에서 label 전달을 빠뜨리지 않는다."
+    ],
+    "focal": "CODE:y1 = F.one_hot(y,10).float();;h = encoder(torch.cat([x_flat,y1],1));;logits = decoder(torch.cat([z,y1],1))",
+    "note": "encoder에만 라벨을 넣고 decoder에 주지 않으면 생성 시 라벨 제어 경로가 없다. 양쪽 경로의 입력 차원을 각각 검증한다."
+  },
+  {
+    "n": 19,
+    "title": "생성 격자의 축 고정",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "행마다 원하는 숫자 라벨을 고정한다.",
+      "열마다 동일 z를 공유한다.",
+      "추가 격자에서는 라벨 하나에 여러 z를 샘플링한다."
+    ],
+    "focal": "10개 라벨 × 8개 latent 샘플",
+    "note": "label grid는 y.repeat_interleave(n_cols), z는 같은 표본을 라벨 수만큼 반복하면 된다. 텐서 배치 순서와 그림 순서가 일치하는지 확인한다."
+  },
+  {
+    "n": 20,
+    "title": "해석 가능한 기록 저장",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "config, seed, β, latent_dim을 결과 표에 남긴다.",
+      "재구성·샘플·차원별 KL 그림을 보관한다.",
+      "정량 결론과 시각적 관찰을 구분해 쓴다."
+    ],
+    "focal": "결과물 = 표 + 그림 + 5문장 해석",
+    "note": "학기 마지막 발표에서는 세 모델 계열의 데이터, 출력, loss, 생성 경로를 연결해 설명하도록 한다. 파일 저장 경로를 확인한다."
+  },
+  {
+    "n": 21,
+    "title": "LAB 1 · β sweep",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §1–4: β=0.25,1,4 모델을 학습한다.",
+      "공통 β=1 평가로 recon·KL·NLL bound를 정리한다.",
+      "같은 입력과 prior z로 격자를 비교한다."
+    ],
+    "focal": "50–63분 / 산출물: β 비교 표 + 격자",
+    "note": "느린 CPU에서는 epoch와 표본 수를 줄인다. 이 경우 품질 비교는 예비 관찰로 적는다. 각 조건의 train total 크기를 단순 순위로 읽지 않도록 확인한다."
+  },
+  {
+    "n": 22,
+    "title": "LAB 2 · latent 진단",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §5: 차원별 KL과 traversal을 그린다.",
+      "z 변경이 생성 이미지에 영향을 주는지 본다.",
+      "collapse라는 결론에 필요한 추가 증거를 적는다."
+    ],
+    "focal": "63–68분 / 산출물: KL 막대 + traversal",
+    "note": "어떤 좌표는 변화가 작을 수 있다. 그 하나만으로 모델 전체가 붕괴했다고 하지 않는다. KL과 재구성, 여러 z 반응을 함께 본다."
+  },
+  {
+    "n": 23,
+    "title": "LAB 3 · 조건부 생성",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §6–7: 작은 CVAE를 학습한다.",
+      "행=라벨, 열=같은 z의 생성 격자를 만든다.",
+      "조건 일치와 다양성의 실패 예시를 고른다."
+    ],
+    "focal": "68–75분 / 산출물: 10×8 조건부 격자",
+    "note": "짧은 학습에서 숫자 라벨을 충분히 따르지 못할 수 있다. 결과를 삭제하지 말고 학습이 진행되며 개선되는지 추가 예산 실험으로 연결한다."
+  },
+  {
+    "n": 24,
+    "title": "β 실험의 결론 쓰기",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "β 증가에 따라 recon과 KL이 어떻게 변했는지 적는다.",
+      "샘플 격자에서 관찰한 변화를 구체화한다.",
+      "한 seed·작은 데이터라는 한계를 적는다."
+    ],
+    "focal": "현상 → 가능한 설명 → 후속 검증",
+    "note": "예상 경향과 다르면 측정과 초기화, reduction부터 점검한다. 그 뒤 짧은 최적화 예산이나 모델 용량을 원인 후보로 논의한다."
+  },
+  {
+    "n": 25,
+    "title": "CVAE 조건이 먹히지 않을 때",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "decoder에 라벨이 실제로 전달되는지 확인한다.",
+      "라벨 순서와 그림 격자 순서가 맞는지 본다.",
+      "같은 z에서 y를 바꿨을 때 logits가 달라지는지 검사한다."
+    ],
+    "focal": "shape 검사 + 입력 변화 검사 + 실제 샘플",
+    "note": "logits가 달라진다고 정확한 숫자가 생성된다는 보장은 없다. 조건 사용의 최소 검사와 의미적 정확도 평가를 분리한다."
+  },
+  {
+    "n": 26,
+    "title": "세 모델 계열을 연결하기",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "CNN은 이미지에서 클래스 점수를 만든다.",
+      "LM은 문맥에서 다음 토큰 분포를 만든다.",
+      "VAE는 latent에서 이미지 조건부 분포를 만든다."
+    ],
+    "focal": "입력 / 출력 / loss / sampling을 한 표로",
+    "note": "CNN도 확률 출력으로 해석할 수 있지만 학습 대상이 생성 분포와 다르다. 학기 전체를 모델 이름보다 목적함수와 데이터 흐름으로 기억하게 한다."
+  },
+  {
+    "n": 27,
+    "title": "최종 출구 퀴즈",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "Q1. β가 다른 total loss를 바로 비교해도 될까?",
+      "Q2. CVAE 생성에 실제 입력 이미지가 필요할까?",
+      "Q3. KL≈0 하나로 collapse를 확정할까?"
+    ],
+    "focal": "공통 척도 / prior+label / 여러 진단",
+    "note": "정답: 그대로 비교하지 않음, 필요 없음, 확정하지 않음. prior z와 원하는 label로 생성한다. 모델이 실제 z를 사용하는지 추가로 검사한다."
+  },
+  {
+    "n": 28,
+    "title": "학기 마무리 · 3분 발표",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "해결하려는 문제와 모델 선택을 설명한다.",
+      "한 가지 통제 실험과 실제 결과를 보여 준다.",
+      "실패 사례와 다음 실험을 제안한다."
+    ],
+    "focal": "자율 최종 과제: 재현 가능한 작은 연구 노트",
+    "note": "과제는 선택이다. CNN, LM, VAE 중 관심 주제 하나를 선택해 확장할 수 있다. 결과가 좋지 않아도 실험 설계와 근거가 명확하면 충분한 학습 성과다."
+  },
+  {
+    "n": 29,
+    "title": "부록 · active units",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "데이터에 따른 μ_j의 분산을 계산한다.",
+      "일정 임계값 이상인 차원을 세는 진단이 가능하다.",
+      "임계값에 따라 수치가 달라짐을 보고한다."
+    ],
+    "focal": "AU_j = Var_x[μ_j(x)] > threshold",
+    "note": "차원별 KL과 active units는 같은 지표가 아니다. 표본 수와 scale에 영향을 받으므로 절대 기준으로 평가하지 않는다."
+  },
+  {
+    "n": 30,
+    "title": "부록 · free bits의 직관",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "KL의 작은 값 구간에 완충 구간을 둘 수 있다.",
+      "너무 이른 정보 압축을 줄이려는 방법이다.",
+      "차원별·그룹별 정의에 따라 구현이 달라진다."
+    ],
+    "focal": "KL 조절법은 목적함수를 바꾼다",
+    "note": "clamp를 어디에 적용하는지에 따라 gradient가 달라진다. 핵심 실습은 β와 warm-up만 다루고 free bits는 추가 읽기로 연결한다."
+  },
+  {
+    "n": 31,
+    "title": "부록 · disentanglement의 한계",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "독립된 의미 요인을 좌표별로 분리하고 싶다.",
+      "관찰 데이터만으로 식별이 어려운 경우가 있다.",
+      "구조·감독·가정과 평가 기준을 명시해야 한다."
+    ],
+    "focal": "시각적으로 예쁜 traversal ≠ 증명",
+    "note": "한 좌표가 굵기를 바꾸는 것처럼 보여도 다른 의미 요인도 함께 바뀔 수 있다. 여러 입력과 정량 평가가 필요하다."
+  },
+  {
+    "n": 32,
+    "title": "부록 · convolutional VAE",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "encoder에 CNN을 사용해 공간 구조를 활용한다.",
+      "decoder에는 upsampling과 convolution 등을 사용한다.",
+      "출력 해상도와 logits shape를 끝까지 추적한다."
+    ],
+    "focal": "CNN encoder → μ,logvar → image decoder",
+    "note": "1주차의 합성곱 shape 계산과 연결한다. ConvTranspose2d의 출력 크기는 일반 Conv와 다르므로 공식 확인이 필요하다."
+  },
+  {
+    "n": 33,
+    "title": "부록 · 생성 평가와 FID",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "특징 분포를 비교하는 지표가 쓰이기도 한다.",
+      "특징 추출기·표본 수·전처리에 민감하다.",
+      "소수 MNIST 샘플의 FID를 만능 기준으로 쓰지 않는다."
+    ],
+    "focal": "평가 지표는 데이터와 목적에 맞춰 선택한다",
+    "note": "이 수업에서는 FID를 구현하지 않는다. 부정확한 소규모 수치보다 재구성, prior 샘플, 조건 일치, 다양성의 한계를 투명하게 보고한다."
+  },
+  {
+    "n": 34,
+    "title": "부록 · 실험 재현 체크",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "코드·환경·분할·seed·config를 남긴다.",
+      "모델 선택에 사용한 지표를 명시한다.",
+      "실행한 결과와 예상 결과를 구분한다."
+    ],
+    "focal": "관측값에만 숫자 붙이기",
+    "note": "실행하지 않은 정확도나 ELBO 값을 예시 결과처럼 쓰지 않는다. 재실행 불가능한 스크린샷만 제출하기보다 notebook과 설정을 함께 보관한다."
+  },
+  {
+    "n": 35,
+    "title": "부록 · 최종 프로젝트 선택지",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "CNN: 증강 한 종류를 통제 실험한다.",
+      "LM: 문맥 길이와 생성 반복을 비교한다.",
+      "VAE: β·latent 크기·조건부 생성 중 하나를 확장한다."
+    ],
+    "focal": "질문 1개 / 비교 2~3개 / 근거 있는 결론",
+    "note": "각 팀은 가설, 통제 변수, 실행 예산, 평가 기준을 먼저 적는다. 결과를 보고 가설을 바꿨다면 탐색과 검증을 구분해 서술하도록 한다."
+  },
+  {
+    "n": 36,
+    "title": "시각 보충 · 학습과 생성의 두 경로",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "0",
+    "note": "재구성과 prior 샘플을 같은 용어로 부르지 않는다. CVAE라면 두 경로의 encoder/decoder에 라벨 y가 추가된다. μ 재구성은 확률 평균 그림이며 MC 평가와 구분한다."
+  },
+  {
+    "n": 37,
+    "title": "시각 보충 · 재매개화의 gradient 경로",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "1",
+    "note": "샘플링 잡음 ε를 외부에서 뽑되 μ와 표준편차로 변환하는 과정은 미분 가능하다. logvar를 exp한 값은 분산이므로 표준편차에는 0.5가 필요하다."
+  },
+  {
+    "n": 38,
+    "title": "시각 보충 · reduction의 단위",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "2",
+    "note": "28×28 grayscale의 픽셀 수는 784다. recon만 평균으로 줄이고 KL을 그대로 두면 KL이 상대적으로 784배 강해진다. 배치 복제에 대한 loss 불변량을 확인한다."
+  },
+  {
+    "n": 39,
+    "title": "시각 보충 · 조건부 생성 격자의 축",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "3",
+    "note": "행 라벨을 0~9까지 확장하면 실습의 10×8 격자가 된다. 같은 z의 스타일이 모든 라벨에서 같다는 보장은 없다. 실제 조건 충실도는 생성 이미지를 확인해야 한다."
+  },
+  {
+    "n": 40,
+    "title": "읽을거리와 출처",
+    "section": "참고",
+    "time": "",
+    "bullets": [
+      "Auto-Encoding Variational Bayes · Kingma & Welling",
+      "β-VAE · Higgins et al.",
+      "BCE with logits · 공식 API"
+    ],
+    "focal": "원문 링크는 발표자 노트와 주차별 README에 수록",
+    "note": "Auto-Encoding Variational Bayes · Kingma & Welling\nhttps://arxiv.org/abs/1312.6114\nβ-VAE · Higgins et al.\nhttps://openreview.net/forum?id=Sy2fzU9gl\nBCE with logits · 공식 API\nhttps://docs.pytorch.org/docs/stable/generated/torch.nn.functional.binary_cross_entropy_with_logits.html\n\n슬라이드 문장·도식과 실습 코드는 이 수업을 위해 새로 작성했다. 원문 그림을 복제하지 않았다."
+  }
+]

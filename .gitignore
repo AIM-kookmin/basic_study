@@ -1,0 +1,40 @@
+# Python / Jupyter caches
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local Python environments
+.venv/
+venv/
+env/
+.study-build-env/
+
+# Downloaded datasets and generated training artifacts (at any depth)
+data/
+.study-data/
+outputs/
+*.pt
+*.pth
+*.ckpt
+events.out.tfevents.*
+
+# Regenerable validation previews and student distribution archive
+/_검증/
+/AIM_*_수강생배포.zip
+
+# Local environment settings; keep shareable examples
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# OS metadata and Office temporary lock files
+.DS_Store
+Thumbs.db
+Desktop.ini
+~$*
+
+# Course PPTX, PDFs, notebooks, Markdown guides and _제작소스/ stay tracked.

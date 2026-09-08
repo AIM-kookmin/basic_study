@@ -1,0 +1,507 @@
+[
+  {
+    "n": 1,
+    "title": "VAE ① 잠재변수로 이미지 생성하기",
+    "section": "오프닝",
+    "time": "00–02분 · 이번 주에 만들 결과물 확인",
+    "bullets": [
+      "AE와 VAE의 차이를 확률 분포 관점에서 설명한다.",
+      "재매개화와 ELBO 손실을 올바르게 구현한다.",
+      "MNIST 재구성·prior 샘플·잠재 보간을 구분한다."
+    ],
+    "focal": "IMAGE\n↔ LATENT",
+    "note": "로그, 평균과 분산, 정규분포를 짧게 복습한다. MNIST 픽셀은 0~1 범위로 유지한다. 이미지 분류에서 사용한 [-1,1] Normalize를 그대로 적용하지 않는다."
+  },
+  {
+    "n": 2,
+    "title": "90분 수업 지도",
+    "section": "운영",
+    "time": "02–05분 · 실습 노트북 열기",
+    "bullets": [
+      "00–05 도입 · 05–20 개념 · 20–35 수식과 손계산",
+      "35–50 구현 설계 · 50–75 실습 · 75–85 분석",
+      "85–90 회고 · 부록과 자율 과제는 수업 이후"
+    ],
+    "focal": "90 MIN  /  개념 45 + 실습 25 + 분석·회고 20",
+    "note": "시작 전에 실습의 환경 셀과 데이터 다운로드를 실행해 둔다. 핵심 구간의 종료 시간을 지키고 심화 질문은 부록으로 연결한다. 실습은 실행만 하는 시간이 아니라 예측, 관찰, 설명까지 포함한다."
+  },
+  {
+    "n": 3,
+    "title": "분류에서 생성으로",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "분류기는 이미지가 어떤 클래스인지 예측한다.",
+      "생성 모델은 데이터의 분포를 학습하려 한다.",
+      "VAE는 관측 x와 숨은 변수 z의 관계를 모델링한다."
+    ],
+    "focal": "FLOW:z ~ prior>decoder>이미지 분포>샘플 x",
+    "note": "생성 이미지에서 픽셀 평균을 그리는 것과 likelihood에서 실제 픽셀을 샘플링하는 것을 구분한다. 실습 그림은 보통 sigmoid 확률을 표시한다."
+  },
+  {
+    "n": 4,
+    "title": "Autoencoder 복습",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "encoder가 입력을 작은 벡터로 압축한다.",
+      "decoder가 그 벡터에서 입력을 복원한다.",
+      "재구성만 잘해도 임의 z가 좋은 이미지를 만든다는 보장은 없다."
+    ],
+    "focal": "FLOW:x>encoder>z>decoder>x̂",
+    "note": "잠재 공간에 학습 입력이 없는 빈 영역이 생길 수 있다. AE의 임의 Gaussian 샘플이 자연스럽지 않을 수 있다는 동기를 제시하되 모든 AE가 생성 불가능하다고 단정하지 않는다."
+  },
+  {
+    "n": 5,
+    "title": "VAE의 encoder는 분포를 만든다",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "입력마다 μ와 log σ²를 출력한다.",
+      "qφ(z∣x)를 diagonal Gaussian으로 둔다.",
+      "z 한 점 대신 가능한 잠재 표현의 분포를 학습한다."
+    ],
+    "focal": "qφ(z∣x) = N(μ(x), diag(σ²(x)))",
+    "note": "encoder가 실제 posterior를 정확히 계산하는 것은 아니다. 복잡한 p(z∣x)를 근사하기 위해 학습하는 분포다. 대각 공분산은 표현상의 가정이다."
+  },
+  {
+    "n": 6,
+    "title": "prior와 posterior",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "prior p(z)는 입력을 보기 전의 가정이다.",
+      "posterior p(z∣x)는 관측 후의 분포다.",
+      "qφ(z∣x)는 posterior를 대신하는 근사 분포다."
+    ],
+    "focal": "p(z)=N(0,I), qφ(z∣x)≈pθ(z∣x)",
+    "note": "생성 시에는 입력 이미지가 없으므로 prior에서 z를 뽑는다. reconstruction은 q에서 얻은 z 또는 μ를 사용한다. 두 경로를 구분하는 것이 오늘 핵심이다."
+  },
+  {
+    "n": 7,
+    "title": "decoder도 확률 모델",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "decoder는 pθ(x∣z)의 파라미터를 출력한다.",
+      "Bernoulli 모델이라면 픽셀별 logits를 출력한다.",
+      "sigmoid 후 값은 각 픽셀의 1 확률이다."
+    ],
+    "focal": "decoder(z) → logits → sigmoid → pixel probability",
+    "note": "MNIST 회색조를 [0,1] target으로 BCE에 넣는 실용적 관례를 사용한다. 엄밀한 Bernoulli 관측은 이진값이며 필요하면 binarization을 사용할 수 있음을 밝힌다."
+  },
+  {
+    "n": 8,
+    "title": "두 요구의 균형",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "reconstruction은 입력 정보를 z에 담도록 한다.",
+      "KL은 q가 prior에서 지나치게 멀어지는 것을 억제한다.",
+      "둘의 균형이 재구성과 생성에 영향을 준다."
+    ],
+    "focal": "잘 복원하기 + prior와 연결되는 잠재 공간",
+    "note": "KL이 모든 입력의 μ를 정확히 0으로 만들도록 목표한다고만 설명하지 않는다. 분포 전체와 정보량에 대한 제약이며 재구성 항과 함께 최적화한다."
+  },
+  {
+    "n": 9,
+    "title": "샘플링과 미분의 문제",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "z를 무작정 무작위 추출하면 gradient 경로를 설명하기 어렵다.",
+      "외부 잡음 ε를 뽑고 μ·σ로 변환한다.",
+      "랜덤성은 ε, 학습 가능한 경로는 μ·σ에 둔다."
+    ],
+    "focal": "z = μ + σ ⊙ ε, ε ~ N(0,I)",
+    "note": "이 재매개화가 연속 Gaussian 잠재변수에서 쓰이는 pathwise gradient 방식이다. 모든 종류의 이산 샘플링에 같은 식을 적용할 수는 없다."
+  },
+  {
+    "n": 10,
+    "title": "주변 우도가 어려운 이유",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "pθ(x)는 가능한 모든 z의 기여를 적분한다.",
+      "복잡한 decoder에서는 이 적분을 직접 계산하기 어렵다.",
+      "계산 가능한 하한을 최적화한다."
+    ],
+    "focal": "log pθ(x) = log ∫ pθ(x∣z)p(z) dz",
+    "note": "적분을 latent 차원 전체의 합산으로 직관화한다. likelihood와 posterior를 서로 바꾸어 쓰지 않도록 기호를 정리한다."
+  },
+  {
+    "n": 11,
+    "title": "ELBO의 두 항",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "재구성 기대 로그우도는 데이터를 설명하도록 한다.",
+      "KL(q∥p)는 근사 분포와 prior 차이를 측정한다.",
+      "ELBO를 최대화하면 log p(x)의 하한을 높인다."
+    ],
+    "focal": "ELBO = E_q[log pθ(x∣z)] − KL(qφ(z∣x) ∥ p(z))",
+    "note": "ELBO와 log likelihood가 같아지는 것은 q가 실제 posterior와 같을 때다. negative ELBO를 loss로 최소화하므로 KL 앞 부호는 플러스가 된다."
+  },
+  {
+    "n": 12,
+    "title": "하한과 정확한 차이",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "log pθ(x)는 ELBO에 posterior KL을 더한 값이다.",
+      "KL은 0 이상이라 ELBO가 하한이 된다.",
+      "prior KL과 posterior KL을 혼동하지 않는다."
+    ],
+    "focal": "log pθ(x) = ELBO + KL(qφ(z∣x) ∥ pθ(z∣x))",
+    "note": "이 식 오른쪽의 KL은 실제 posterior에 대한 KL이다. 학습 loss의 closed form KL은 prior N(0,I)에 대한 것으로 서로 대상이 다르다."
+  },
+  {
+    "n": 13,
+    "title": "Gaussian KL 닫힌식",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "prior는 표준정규, q는 대각 Gaussian이다.",
+      "μ², exp(logvar), logvar로 계산한다.",
+      "잠재 차원별 값을 합하고 배치 평균한다."
+    ],
+    "focal": "KL = ½ Σ_j [μ_j² + exp(logvar_j) − 1 − logvar_j]",
+    "note": "μ=0, logvar=0이면 0이다. μ=[1,0], logvar=[0,0]이면 0.5다. 부호 오류를 이 작은 사례로 검증한다."
+  },
+  {
+    "n": 14,
+    "title": "log variance에서 표준편차로",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "logvar는 log σ²이다.",
+      "variance는 exp(logvar)이다.",
+      "standard deviation은 exp(0.5×logvar)이다."
+    ],
+    "focal": "z = μ + exp(0.5 × logvar) ⊙ randn_like(μ)",
+    "note": "exp(logvar)를 바로 std로 쓰면 분산이 잘못된다. 노트북에서 큰 표본으로 평균과 분산을 경험적으로 검사한다. logvar를 출력하는 이유는 분산 양수 조건을 편하게 처리하기 위해서다."
+  },
+  {
+    "n": 15,
+    "title": "손실 reduction을 맞추기",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "reconstruction은 픽셀 합, KL은 잠재 차원 합이다.",
+      "두 항을 샘플별로 만든 뒤 배치 평균한다.",
+      "픽셀 평균으로 바꾸면 KL의 상대적 세기가 달라진다."
+    ],
+    "focal": "loss = mean_B(recon_sum_pixels + KL_sum_latents)",
+    "note": "28×28이면 픽셀이 784개다. recon을 평균하고 KL을 합한 뒤 β를 그대로 두면 기존과 다른 목적함수 비율이 된다. 구현에서 reduction을 명시한다."
+  },
+  {
+    "n": 16,
+    "title": "오늘의 MLP VAE",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "encoder는 784→256 은닉 표현을 만든다.",
+      "μ head와 logvar head가 각각 latent_dim을 출력한다.",
+      "decoder는 latent_dim→256→784 logits를 출력한다."
+    ],
+    "focal": "FLOW:x>encoder>μ / logvar>reparameterize>decoder logits",
+    "note": "latent_dim=2를 기본으로 하여 시각화가 쉽다. 고품질 생성에는 제한적인 설정이다. 마지막 decoder에 sigmoid를 넣지 않고 BCEWithLogits와 조합한다."
+  },
+  {
+    "n": 17,
+    "title": "BCEWithLogits로 수치 안정성",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "logits를 그대로 손실 함수에 넣는다.",
+      "시각화 시에만 sigmoid를 적용한다.",
+      "target은 0",
+      "1 범위여야 한다."
+    ],
+    "focal": "CODE:recon = F.binary_cross_entropy_with_logits(;;    logits, x, reduction='none');;recon = recon.flatten(1).sum(1)",
+    "note": "sigmoid 후 BCE를 직접 조합하는 것보다 안정적인 구현이다. -1~1 normalized 이미지 target을 넣으면 관측 모델과 입력 범위가 맞지 않는다."
+  },
+  {
+    "n": 18,
+    "title": "AE와 VAE를 비교할 때",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "같은 데이터와 유사한 은닉 폭을 사용한다.",
+      "AE는 deterministic z, VAE는 μ·logvar와 샘플링을 쓴다.",
+      "재구성만으로 생성 모델 전체를 평가하지 않는다."
+    ],
+    "focal": "reconstruction quality ≠ prior sample quality",
+    "note": "실습은 VAE에 집중하고 AE는 자율 확장한다. 샘플과 재구성 경로를 그림으로 나란히 비교한다. 모델 파라미터 수가 완전히 같지 않은 점을 보고한다."
+  },
+  {
+    "n": 19,
+    "title": "평가의 랜덤성 관리",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "μ를 넣은 재구성은 반복 비교하기 쉽다.",
+      "ELBO 평가의 reconstruction 기대값은 샘플로 근사한다.",
+      "같은 seed·같은 표본으로 조건 간 변동을 줄인다."
+    ],
+    "focal": "μ reconstruction / stochastic ELBO estimate 구분",
+    "note": "μ reconstruction BCE에 KL을 더한 값은 일반적으로 정확한 MC ELBO estimator가 아니다. 노트북은 평가 지표에 z 샘플을 쓰고 시각화에 μ를 사용한다."
+  },
+  {
+    "n": 20,
+    "title": "검증할 불변량",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "μ=0, logvar=0에서 KL이 0이어야 한다.",
+      "reparameterization 출력 shape가 μ와 같아야 한다.",
+      "backward 후 μ와 logvar 경로에 gradient가 있어야 한다."
+    ],
+    "focal": "KL≥0 / finite loss / gradient path",
+    "note": "부동소수점 오차로 매우 작은 음수가 나올 가능성을 허용 오차와 함께 생각한다. 빈 배치나 과도한 exp overflow도 진단 대상으로 본다."
+  },
+  {
+    "n": 21,
+    "title": "LAB 1 · 손실과 재매개화",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §1–3: MNIST 범위와 shape를 확인한다.",
+      "Gaussian KL의 두 손계산 사례를 검사한다.",
+      "ε 샘플의 평균·분산과 gradient를 확인한다."
+    ],
+    "focal": "50–58분 / 산출물: KL 검사 + 표본 통계",
+    "note": "표본 평균은 정확히 0이 아니며 표본 수에 따라 근사한다. 경험적 분산 테스트는 충분한 표본과 여유 있는 tolerance를 사용한다."
+  },
+  {
+    "n": 22,
+    "title": "LAB 2 · VAE 학습",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §4: recon·KL·total을 따로 기록한다.",
+      "최고 validation negative ELBO를 보관한다.",
+      "학습 곡선의 세 항을 분리해서 읽는다."
+    ],
+    "focal": "58–69분 / 산출물: 3개 손실 곡선",
+    "note": "KL이 낮아지는 것만으로 좋아졌다고 말하지 않는다. recon 변화와 함께 읽는다. 최소 실행에서는 blurry한 결과가 정상일 수 있으며 성능을 보장하지 않는다."
+  },
+  {
+    "n": 23,
+    "title": "LAB 3 · 세 종류의 이미지",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §5–7: 원본·μ 재구성을 나란히 그린다.",
+      "prior N(0,I)에서 z를 뽑아 이미지를 생성한다.",
+      "두 입력의 μ 사이를 선형 보간한다."
+    ],
+    "focal": "69–75분 / 산출물: 재구성·prior 샘플·보간",
+    "note": "reconstruction에 학습 입력 정보가 들어간다는 점을 재확인한다. prior 샘플에는 특정 입력이 없다. 보간이 부드럽다고 disentanglement가 증명되는 것은 아니다."
+  },
+  {
+    "n": 24,
+    "title": "VAE 그림이 흐릿한 이유",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "제한된 모델 용량과 학습 예산이 영향을 준다.",
+      "픽셀별 조건부 모델이 평균적인 출력을 선호할 수 있다.",
+      "KL과 재구성의 균형도 영향을 준다."
+    ],
+    "focal": "흐릿함의 원인은 하나가 아니다",
+    "note": "VAE는 무조건 흐리다는 식의 과도한 일반화는 피한다. 지금은 작은 MLP와 2차원 latent라는 제약이 크다. decoder 확률을 그렸다는 점도 구분한다."
+  },
+  {
+    "n": 25,
+    "title": "좋은 재구성과 좋은 생성",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "재구성은 특정 입력에 조건화한 z를 사용한다.",
+      "prior 샘플은 잠재 공간의 다른 영역에 놓일 수 있다.",
+      "두 결과를 별도 격자로 평가한다."
+    ],
+    "focal": "q(z∣x)에서 복원 / p(z)에서 생성",
+    "note": "학습 데이터 주변만 잘 복원하는 모델과 prior 전반에서 잘 생성하는 모델을 구분한다. 샘플 격자는 seed를 고정해 조건 사이 비교가 쉽도록 한다."
+  },
+  {
+    "n": 26,
+    "title": "잠재 공간 scatter 읽기",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "입력별 μ를 2차원 평면에 찍는다.",
+      "라벨 색은 시각화용이며 학습 loss에 사용하지 않는다.",
+      "군집의 분리는 분류 성능이나 독립 요인을 보장하지 않는다."
+    ],
+    "focal": "μ(x)의 지도는 q 전체와 다르다",
+    "note": "μ만 그리면 각 입력 분포의 σ가 보이지 않는다. 필요하면 일부 점에 분산 타원을 추가한다. 숫자 클래스가 완전히 분리되지 않아도 VAE 학습 실패로 단정하지 않는다."
+  },
+  {
+    "n": 27,
+    "title": "출구 퀴즈",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "Q1. logvar=0이면 표준편차는?",
+      "Q2. 생성 시 z는 encoder와 prior 중 어디서 뽑을까?",
+      "Q3. negative ELBO에서 KL의 부호는?"
+    ],
+    "focal": "분포 / 생성 경로 / 목적함수",
+    "note": "정답: 1, 입력 없는 생성은 prior, 플러스. reconstruction 시에는 encoder의 q 또는 μ를 사용할 수 있다. 경로에 따라 용어를 구분한다."
+  },
+  {
+    "n": 28,
+    "title": "다음: 잠재 공간을 조절하기",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "β로 재구성과 KL의 상대 가중치를 바꾼다.",
+      "조건 라벨을 주어 원하는 숫자를 생성한다.",
+      "같은 손실 척도와 같은 z로 비교한다."
+    ],
+    "focal": "자율 과제: KL·재매개화·latent 차원",
+    "note": "다음 주에는 β가 커졌을 때의 현상을 직접 관찰한다. 더 큰 β가 언제나 더 좋은 생성이나 disentanglement를 만든다는 보장은 없다."
+  },
+  {
+    "n": 29,
+    "title": "부록 · Jensen으로 하한 만들기",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "q(z∣x)를 곱하고 나눠 기대값 형태로 바꾼다.",
+      "log E_q[p(x,z)/q]에 Jensen 부등식을 적용한다.",
+      "E_q[log p(x,z)−log q]를 얻는다."
+    ],
+    "focal": "log E[f] ≥ E[log f]",
+    "note": "q의 support 등 수식이 성립하기 위한 조건을 전제한다. 이 기대값을 likelihood 항과 prior KL로 정리하면 핵심 ELBO 식이 된다."
+  },
+  {
+    "n": 30,
+    "title": "부록 · KL은 거리일까",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "KL은 비음수지만 일반적으로 대칭이 아니다.",
+      "KL(q∥p)와 KL(p∥q)는 다르다.",
+      "삼각부등식을 만족하는 일반적인 거리로 취급하지 않는다."
+    ],
+    "focal": "KL(q∥p) ≠ KL(p∥q)",
+    "note": "수업에서는 분포 차이를 측정하는 방향성 있는 양이라고 소개한다. 학습 목적에서 어느 방향을 쓰는지 반드시 기호를 확인한다."
+  },
+  {
+    "n": 31,
+    "title": "부록 · 관측 모델 바꾸기",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "Gaussian decoder는 실수값 관측에 쓸 수 있다.",
+      "고정 분산 Gaussian의 NLL은 MSE와 연결된다.",
+      "분산 선택에 따라 reconstruction 항의 스케일이 바뀐다."
+    ],
+    "focal": "likelihood 선택 → loss 형태와 스케일",
+    "note": "BCE와 MSE의 숫자 크기를 직접 비교해 어느 모델이 좋다고 결론내리지 않는다. 데이터 범위와 확률 가정을 함께 바꿔야 한다."
+  },
+  {
+    "n": 32,
+    "title": "부록 · latent 차원의 영향",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "너무 작으면 정보를 충분히 담기 어렵다.",
+      "크게 해도 일부 차원을 사용하지 않을 수 있다.",
+      "차원별 KL과 μ의 변동을 함께 관찰한다."
+    ],
+    "focal": "nominal dimension ≠ used dimension",
+    "note": "dimension을 키우면 파라미터와 KL 합의 규모도 바뀐다. 공정한 비교에서는 동일 loss reduction과 학습 예산을 유지한다."
+  },
+  {
+    "n": 33,
+    "title": "부록 · stochastic reconstruction",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "같은 x에서도 z가 달라져 복원이 달라질 수 있다.",
+      "μ를 쓰면 대표적인 복원을 확인할 수 있다.",
+      "μ decoding은 x의 정확한 조건부 평균과 일반적으로 다르다."
+    ],
+    "focal": "decoder(E[z]) ≠ E[decoder(z)]",
+    "note": "decoder가 비선형이므로 평균을 통과시킬 수 없다. 여러 샘플 평균을 구해 차이를 관찰하는 추가 실험을 제안한다."
+  },
+  {
+    "n": 34,
+    "title": "부록 · latent grid",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "2차원 z의 좌표를 격자로 골라 decode한다.",
+      "prior 밀도가 낮은 바깥 영역은 낯선 결과를 낼 수 있다.",
+      "정규분포 분위수 격자도 사용할 수 있다."
+    ],
+    "focal": "z₁·z₂ 좌표 → 이미지 지도",
+    "note": "격자 탐색과 prior random sample은 샘플링 분포가 다르다. 그림이 다양해 보인다고 실제 prior에서 그 이미지들이 자주 나오는 것은 아니다."
+  },
+  {
+    "n": 35,
+    "title": "부록 · 자율 과제 방향",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "reparameterize와 KL을 빈칸부터 구현한다.",
+      "latent_dim 2와 8을 같은 예산으로 비교한다.",
+      "재구성과 prior 샘플을 각각 설명한다."
+    ],
+    "focal": "수치 검사 + 시각화 + 해석",
+    "note": "리더 해설은 손실 reduction을 명시한다. 학생에게 단지 격자를 제출하게 하지 말고 각 그림이 어떤 z 경로에서 나왔는지 적게 한다."
+  },
+  {
+    "n": 36,
+    "title": "시각 보충 · 학습과 생성의 두 경로",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "0",
+    "note": "재구성과 prior 샘플을 같은 용어로 부르지 않는다. CVAE라면 두 경로의 encoder/decoder에 라벨 y가 추가된다. μ 재구성은 확률 평균 그림이며 MC 평가와 구분한다."
+  },
+  {
+    "n": 37,
+    "title": "시각 보충 · 재매개화의 gradient 경로",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "1",
+    "note": "샘플링 잡음 ε를 외부에서 뽑되 μ와 표준편차로 변환하는 과정은 미분 가능하다. logvar를 exp한 값은 분산이므로 표준편차에는 0.5가 필요하다."
+  },
+  {
+    "n": 38,
+    "title": "시각 보충 · reduction의 단위",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "2",
+    "note": "28×28 grayscale의 픽셀 수는 784다. recon만 평균으로 줄이고 KL을 그대로 두면 KL이 상대적으로 784배 강해진다. 배치 복제에 대한 loss 불변량을 확인한다."
+  },
+  {
+    "n": 39,
+    "title": "시각 보충 · 조건부 생성 격자의 축",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "3",
+    "note": "행 라벨을 0~9까지 확장하면 실습의 10×8 격자가 된다. 같은 z의 스타일이 모든 라벨에서 같다는 보장은 없다. 실제 조건 충실도는 생성 이미지를 확인해야 한다."
+  },
+  {
+    "n": 40,
+    "title": "읽을거리와 출처",
+    "section": "참고",
+    "time": "",
+    "bullets": [
+      "Auto-Encoding Variational Bayes · Kingma & Welling",
+      "β-VAE · Higgins et al.",
+      "BCE with logits · 공식 API"
+    ],
+    "focal": "원문 링크는 발표자 노트와 주차별 README에 수록",
+    "note": "Auto-Encoding Variational Bayes · Kingma & Welling\nhttps://arxiv.org/abs/1312.6114\nβ-VAE · Higgins et al.\nhttps://openreview.net/forum?id=Sy2fzU9gl\nBCE with logits · 공식 API\nhttps://docs.pytorch.org/docs/stable/generated/torch.nn.functional.binary_cross_entropy_with_logits.html\n\n슬라이드 문장·도식과 실습 코드는 이 수업을 위해 새로 작성했다. 원문 그림을 복제하지 않았다."
+  }
+]

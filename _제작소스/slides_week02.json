@@ -1,0 +1,507 @@
+[
+  {
+    "n": 1,
+    "title": "CNN ② 성능을 개선하는 실험",
+    "section": "오프닝",
+    "time": "00–02분 · 이번 주에 만들 결과물 확인",
+    "bullets": [
+      "CIFAR10에서 증강과 정규화의 역할을 구분한다.",
+      "Residual block을 구현하고 공정한 비교 실험을 한다.",
+      "오분류·클래스별 성능·일반화 간격으로 결과를 해석한다."
+    ],
+    "focal": "BASELINE\n→ EVIDENCE",
+    "note": "1주차 CNN과 학습 루프를 복습한다. CIFAR10은 최초 약 170MB 다운로드가 필요하다. 학습 데이터 일부와 작은 모델로 시작하며 고성능 벤치마크 재현을 목표로 하지 않는다."
+  },
+  {
+    "n": 2,
+    "title": "90분 수업 지도",
+    "section": "운영",
+    "time": "02–05분 · 실습 노트북 열기",
+    "bullets": [
+      "00–05 도입 · 05–20 개념 · 20–35 수식과 손계산",
+      "35–50 구현 설계 · 50–75 실습 · 75–85 분석",
+      "85–90 회고 · 부록과 자율 과제는 수업 이후"
+    ],
+    "focal": "90 MIN  /  개념 45 + 실습 25 + 분석·회고 20",
+    "note": "시작 전에 실습의 환경 셀과 데이터 다운로드를 실행해 둔다. 핵심 구간의 종료 시간을 지키고 심화 질문은 부록으로 연결한다. 실습은 실행만 하는 시간이 아니라 예측, 관찰, 설명까지 포함한다."
+  },
+  {
+    "n": 3,
+    "title": "FashionMNIST에서 CIFAR10으로",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "흑백 28×28에서 컬러 32×32로 바뀐다.",
+      "배경·시점·색상 변화가 커진다.",
+      "같은 10개 클래스라도 분류 난도는 다르다."
+    ],
+    "focal": "[B,1,28,28] → [B,3,32,32]",
+    "note": "첫 Conv의 in_channels를 3으로 바꾼다. CIFAR10 클래스 순서는 airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck이다. augmentation은 의미를 보존해야 한다."
+  },
+  {
+    "n": 4,
+    "title": "실험의 출발점은 baseline",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "단순한 기준 모델을 먼저 고정한다.",
+      "변경할 요인은 한 번에 하나를 우선한다.",
+      "데이터 분할과 평가 절차를 모든 조건에서 공유한다."
+    ],
+    "focal": "가설: 좌우 반전·crop이 일반화에 도움을 줄까?",
+    "note": "성능이 낮다고 곧바로 많은 기법을 동시에 넣으면 어느 변화가 도움이 되었는지 알 수 없다. 기본 실습은 같은 네트워크에서 증강 유무를 비교하고 residual은 별도 확장한다."
+  },
+  {
+    "n": 5,
+    "title": "증강은 학습 데이터에만",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "RandomCrop은 위치 변화에 대응하도록 한다.",
+      "HorizontalFlip은 좌우 변화에 대응하도록 한다.",
+      "validation/test는 고정된 전처리를 사용한다."
+    ],
+    "focal": "FLOW:train>무작위 증강>정규화>모델",
+    "note": "validation에 무작위 crop이 있으면 평가 자체가 흔들린다. 같은 Dataset 객체의 transform을 바꾸면 두 Subset에 동시에 영향을 줄 수 있어 별도 Dataset 객체를 사용한다."
+  },
+  {
+    "n": 6,
+    "title": "정규화와 규제는 다르다",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "입력 Normalize는 데이터의 수치 범위를 조정한다.",
+      "BatchNorm은 중간 활성화의 통계를 사용한다.",
+      "weight decay·Dropout은 과적합 완화를 위한 수단이다."
+    ],
+    "focal": "입력 처리 / 활성화 처리 / 파라미터·표현 규제",
+    "note": "같은 정규화라는 한국어 때문에 개념을 혼동하기 쉽다. 실습 입력은 채널별 (x−0.5)/0.5로 변환한다. 이는 데이터 평균을 추정한 값이 아닌 고정적인 범위 변환이다."
+  },
+  {
+    "n": 7,
+    "title": "BatchNorm의 두 가지 모드",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "학습 시에는 미니배치 통계를 사용한다.",
+      "평가 시에는 누적된 running 통계를 사용한다.",
+      "작은 배치나 분포 변화에서는 성능이 흔들릴 수 있다."
+    ],
+    "focal": "Conv → BatchNorm → ReLU",
+    "note": "BatchNorm의 affine 파라미터와 running 통계를 구분한다. running_mean은 optimizer로 학습되는 파라미터가 아니다. eval을 놓치면 시험 데이터 배치 구성에 예측이 영향을 받는다."
+  },
+  {
+    "n": 8,
+    "title": "더 깊으면 항상 더 좋을까",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "깊이는 표현력을 늘리지만 최적화를 어렵게 만들 수 있다.",
+      "학습 데이터가 적으면 과적합도 커질 수 있다.",
+      "연결 구조와 학습 예산을 함께 고려해야 한다."
+    ],
+    "focal": "모델 크기 × 데이터 × 최적화 × 예산",
+    "note": "train 성능까지 나빠지는 문제와 train은 좋고 val만 나쁜 문제를 구분한다. residual은 깊은 네트워크 최적화를 돕는 구조이지 정확도 상승 보장 장치가 아니다."
+  },
+  {
+    "n": 9,
+    "title": "잔차 연결의 핵심",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "블록은 x 전체 대신 수정량 F(x)를 학습한다.",
+      "입력 x가 덧셈 경로로 전달된다.",
+      "덧셈하려면 두 경로의 shape가 같아야 한다."
+    ],
+    "focal": "FLOW:x>Conv-BN-ReLU>Conv-BN>F(x)+x>ReLU",
+    "note": "실습은 두 개 3×3 Conv를 갖는 작은 블록이다. 엄밀한 전체 ResNet 아키텍처 재현이라고 부르지 않는다. shortcut은 학습 경로를 추가한다."
+  },
+  {
+    "n": 10,
+    "title": "입력 Normalize 손계산",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "ToTensor 뒤 픽셀은 보통 0",
+      "1 범위다.",
+      "mean=0.5, std=0.5이면 0은 −1, 1은 1이다.",
+      "시각화에는 역변환을 적용한다."
+    ],
+    "focal": "x_norm = (x−0.5)/0.5; x = 0.5 x_norm + 0.5",
+    "note": "정규화된 텐서를 그대로 imshow하면 색이 이상할 수 있다. 색상을 자를 때 학습 입력을 바꾸지 말고 시각화 복사본에만 clamp를 적용한다."
+  },
+  {
+    "n": 11,
+    "title": "BatchNorm의 식",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "채널별 평균과 분산으로 활성화를 표준화한다.",
+      "학습 가능한 γ와 β가 스케일과 이동을 조정한다.",
+      "ε는 분모가 0에 가까울 때 수치 불안정을 줄인다."
+    ],
+    "focal": "y = γ (x−μ) / sqrt(σ²+ε) + β",
+    "note": "Conv2d의 BatchNorm은 채널별로 배치와 공간 축의 통계를 집계한다. 실습에서 내부 분산 추정 세부를 직접 구현하기보다 모드별 동작 차이에 집중한다."
+  },
+  {
+    "n": 12,
+    "title": "Residual의 기울기 경로",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "y=x+F(x)이면 직접 경로의 미분이 1을 포함한다.",
+      "F가 작아도 입력이 전달될 수 있다.",
+      "모든 gradient 문제가 자동으로 사라지는 것은 아니다."
+    ],
+    "focal": "dy/dx = I + dF/dx",
+    "note": "벡터에서는 1이 아니라 항등행렬 I다. 마지막 ReLU 같은 추가 연산을 제외한 덧셈 지점 기준 식임을 말한다. 안정성이 개선될 수 있다는 정도로 설명한다."
+  },
+  {
+    "n": 13,
+    "title": "projection shortcut",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "stride 2나 채널 증가로 shape가 달라질 수 있다.",
+      "1×1 Conv와 같은 stride로 shortcut도 맞춘다.",
+      "덧셈은 브로드캐스팅에 기대지 않고 동일 shape로 한다."
+    ],
+    "focal": "F(x): [B,64,16,16] / P(x): [B,64,16,16]",
+    "note": "입력 [B,32,32,32]를 예로 든다. projection에는 추가 파라미터가 생긴다. 비교 실험에서는 파라미터 수 변화를 보고해야 한다."
+  },
+  {
+    "n": 14,
+    "title": "Dropout과 weight decay",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "Dropout은 학습 시 일부 활성화를 무작위로 비운다.",
+      "AdamW는 파라미터 감쇠를 optimizer update와 분리한다.",
+      "각 기법의 강도는 validation으로 선택한다."
+    ],
+    "focal": "p_dropout ↑ / weight_decay ↑ → 항상 성능 ↑ 는 아님",
+    "note": "Dropout의 출력 스케일은 PyTorch가 조정한다. AdamW의 weight_decay를 손실에 L2 항을 더한 것과 일반적으로 완전히 같다고 설명하지 않는다."
+  },
+  {
+    "n": 15,
+    "title": "학습률 곡선 읽기",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "너무 큰 lr은 손실을 진동·발산시킬 수 있다.",
+      "너무 작은 lr은 같은 예산에서 충분히 학습하지 못한다.",
+      "scheduler를 썼다면 실제 lr 기록을 함께 남긴다."
+    ],
+    "focal": "학습률 × 업데이트 수를 함께 비교한다",
+    "note": "epoch 수가 같아도 데이터 수나 batch size가 다르면 업데이트 수가 다르다. 오늘 필수 비교는 동일 lr과 epoch로 고정하며 scheduler는 심화 항목이다."
+  },
+  {
+    "n": 16,
+    "title": "Dataset 공유 함정 피하기",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "분할 인덱스를 먼저 한 번만 만든다.",
+      "train용 Dataset에는 증강 transform을 준다.",
+      "validation용 Dataset에는 고정 transform을 준다."
+    ],
+    "focal": "FLOW:고정 인덱스>train Dataset / val Dataset>Subset>DataLoader",
+    "note": "random_split의 두 결과가 하나의 Dataset을 공유하는 경우 transform을 별도로 설정할 수 없다. 실습은 동일 원본을 읽는 Dataset 인스턴스를 분리한다."
+  },
+  {
+    "n": 17,
+    "title": "작은 CIFAR 분류기",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "Conv-BN-ReLU 두 블록으로 특징을 추출한다.",
+      "AdaptiveAvgPool로 공간 평균을 구한다.",
+      "Linear는 채널 수에서 클래스 수로 연결한다."
+    ],
+    "focal": "FLOW:32×32×3>16×16×32>8×8×64>GAP>10",
+    "note": "GAP를 사용하면 입력 공간 크기를 Linear 상수에 직접 쓰지 않아도 된다. 다운샘플 횟수와 작은 이미지 해상도의 균형을 설명한다."
+  },
+  {
+    "n": 18,
+    "title": "최고 모델을 제대로 복사",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "validation loss가 개선될 때 state_dict를 복사한다.",
+      "참조만 저장하면 뒤의 학습으로 값이 바뀔 수 있다.",
+      "학습 후 최고 가중치를 복원해 분석한다."
+    ],
+    "focal": "CODE:best = copy.deepcopy(model.state_dict());;model.load_state_dict(best)",
+    "note": "best_state=model.state_dict()만 저장하는 실수를 설명한다. CPU 텐서 clone으로 저장해 GPU 메모리를 아낄 수도 있다. 노트북은 독립적인 복사본을 보관한다."
+  },
+  {
+    "n": 19,
+    "title": "비교 조건을 표로 고정",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "baseline과 augmentation 모델은 같은 초기 seed를 쓴다.",
+      "분할, batch, lr, epoch와 평가 표본을 맞춘다.",
+      "벽시계 시간과 파라미터 수를 같이 기록한다."
+    ],
+    "focal": "비교: base / augment / residual(확장)",
+    "note": "seed를 맞춰도 모든 랜덤 연산 순서까지 완전히 같아지는 것은 아니다. 엄밀한 결론은 여러 seed와 반복이 필요하다. 이번 실습은 통제 실험 설계의 첫 단계다."
+  },
+  {
+    "n": 20,
+    "title": "실패 시 복구 경로",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "다운로드는 수업 전에 끝낸다.",
+      "CPU에서는 TRAIN_N과 EPOCHS를 줄인다.",
+      "학습이 길면 첫 비교까지만 하고 분석 셀로 이동한다."
+    ],
+    "focal": "먼저 끝까지 실행 → 그다음 예산 확대",
+    "note": "가짜 데이터를 실제 CIFAR 성능처럼 보고하지 않는다. 데이터 접근이 실패하면 환경 점검만 가능하다는 것을 명시한다. 리더는 실행 결과가 저장된 실습 노트북을 백업으로 사용한다."
+  },
+  {
+    "n": 21,
+    "title": "LAB 1 · 증강을 눈으로 검증",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §1–3: 같은 이미지의 증강 8장을 그린다.",
+      "validation 이미지가 반복 호출에도 같은지 검사한다.",
+      "작은 모델과 residual block의 shape를 확인한다."
+    ],
+    "focal": "50–57분 / 산출물: 증강 격자 + shape assert",
+    "note": "좌우 반전이 클래스 의미를 유지하는지 말하게 한다. 숫자 데이터에서는 같은 증강이 적절하지 않을 수 있다. fixed normalization의 역변환도 확인한다."
+  },
+  {
+    "n": 22,
+    "title": "LAB 2 · 두 조건 비교",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §4: base와 augment를 같은 예산으로 학습한다.",
+      "validation 손실로 각 조건의 최고 모델을 저장한다.",
+      "곡선과 파라미터·시간을 표에 정리한다."
+    ],
+    "focal": "57–69분 / 산출물: 조건별 곡선과 결과 표",
+    "note": "기본 설정의 적은 데이터와 epoch에서는 증강 조건이 더 낮을 수도 있다. 관측을 기대에 맞춰 해석하지 말고 왜 그런지 가설을 적는다. residual 비교는 자율 과제로 확장한다."
+  },
+  {
+    "n": 23,
+    "title": "LAB 3 · 선택과 최종 평가",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §5–6: validation으로 최종 조건을 선택한다.",
+      "confusion matrix와 오분류 이미지를 확인한다.",
+      "선택한 모델만 test에서 한 번 평가한다."
+    ],
+    "focal": "69–75분 / 산출물: 최종 평가 + 실패 유형",
+    "note": "test로 두 모델 중 승자를 고르지 않는다. 오분류는 해상도, 배경, 객체 유사성 등 관찰 가능한 근거로 설명한다. 모델의 생각을 추측해 단정하지 않는다."
+  },
+  {
+    "n": 24,
+    "title": "증강이 손해처럼 보일 때",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "같은 epoch에서 학습 문제가 더 어려워진다.",
+      "훈련 표본이나 업데이트 수가 부족할 수 있다.",
+      "변환이 과하거나 클래스 의미를 훼손했을 수 있다."
+    ],
+    "focal": "한 번의 하락 ≠ 증강은 쓸모없다",
+    "note": "두 조건의 train loss는 입력 분포가 다르다. train loss만 직접 비교하지 말고 동일한 validation 입력에서 비교한다. 증강 강도와 학습 시간을 분리해서 후속 실험한다."
+  },
+  {
+    "n": 25,
+    "title": "ablation을 읽는 법",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "하나의 구성 요소를 제거하거나 추가한다.",
+      "나머지 조건을 고정해 차이를 해석한다.",
+      "상호작용이 있으면 한 기법의 효과가 조건에 따라 달라진다."
+    ],
+    "focal": "기준 → +증강 → +잔차 → 반복 seed",
+    "note": "모든 조합을 수업 시간에 돌릴 필요는 없다. 과제 팀끼리 조건을 나누더라도 분할과 설정을 공유해야 결과를 합칠 수 있다."
+  },
+  {
+    "n": 26,
+    "title": "좋은 결과 보고서",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "주장: 어떤 조건이 어떤 지표에서 달랐는가.",
+      "증거: 표·곡선·실패 예시를 제시한다.",
+      "한계: 예산·표본·seed·데이터 범위를 적는다."
+    ],
+    "focal": "주장 / 증거 / 한계 / 다음 실험",
+    "note": "1% 상승만 쓰지 말고 몇 표본에서 몇 개 더 맞혔는지 연결한다. 짧은 실험의 불확실성을 인정하는 것이 좋은 실험 보고다."
+  },
+  {
+    "n": 27,
+    "title": "출구 퀴즈",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "Q1. validation에도 RandomCrop을 넣어도 될까?",
+      "Q2. eval()은 gradient 계산을 자동으로 끌까?",
+      "Q3. 채널 수가 다르면 residual을 어떻게 더할까?"
+    ],
+    "focal": "답보다 이유가 중요하다",
+    "note": "정답: 기본 단일 평가에서는 고정 전처리 사용, eval은 gradient를 끄지 않음, projection으로 채널과 공간 크기를 맞춤. test-time augmentation은 별도 평가 기법이며 오늘 범위와 구분한다."
+  },
+  {
+    "n": 28,
+    "title": "이미지에서 문장으로",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "CNN은 지역 패턴을 공유 가중치로 찾는다.",
+      "문장에서는 먼 토큰의 관계도 직접 연결하고 싶다.",
+      "다음 주에는 관계의 가중치를 입력마다 계산한다."
+    ],
+    "focal": "다음: Q·K·V를 직접 구현한다",
+    "note": "합성곱과 어텐션을 완전히 대립되는 개념으로 소개하지 않는다. 둘 다 표현을 섞지만 이웃 선택과 가중치 결정 방식이 다르다는 연결점을 제시한다."
+  },
+  {
+    "n": 29,
+    "title": "부록 · 전이 학습의 절차",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "사전학습 가중치와 해당 전처리를 함께 확인한다.",
+      "분류 헤드를 교체하고 먼저 헤드만 학습할 수 있다.",
+      "이후 작은 lr로 일부 또는 전체를 미세조정한다."
+    ],
+    "focal": "pretrained backbone → new head → fine-tune",
+    "note": "핵심 실습은 다운로드와 입력 크기 비용을 줄이기 위해 작은 모델을 처음부터 학습한다. 사전학습 ResNet을 추가한다면 weights.transforms()와 클래스 수 변경을 확인한다."
+  },
+  {
+    "n": 30,
+    "title": "부록 · freeze와 eval",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "requires_grad=False는 파라미터 gradient를 막는다.",
+      "eval은 BatchNorm·Dropout의 모드를 바꾼다.",
+      "동결된 backbone의 통계 갱신 여부도 결정해야 한다."
+    ],
+    "focal": "freeze ≠ eval",
+    "note": "model.train() 호출이 모든 하위 모듈을 학습 모드로 되돌릴 수 있다. backbone.eval()을 다시 설정해야 하는 상황을 예로 든다."
+  },
+  {
+    "n": 31,
+    "title": "부록 · label smoothing",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "정답 확률 목표를 한 점에서 조금 분산한다.",
+      "과도한 확신을 완화할 수 있다.",
+      "강도가 크면 학습 신호를 약하게 만들 수 있다."
+    ],
+    "focal": "nn.CrossEntropyLoss(label_smoothing=0.1)",
+    "note": "정확도와 calibration은 서로 다른 지표다. label smoothing이 모든 데이터에서 반드시 개선된다고 말하지 않는다."
+  },
+  {
+    "n": 32,
+    "title": "부록 · class imbalance",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "전체 정확도가 다수 클래스에 좌우될 수 있다.",
+      "클래스별 recall과 macro 평균을 함께 본다.",
+      "샘플링·가중 손실은 분포와 목적에 따라 선택한다."
+    ],
+    "focal": "macro recall = 클래스별 recall의 평균",
+    "note": "CIFAR10은 기본적으로 클래스 균형 데이터지만 부분집합은 약간 달라질 수 있다. 실제 업무 데이터에서 분포가 달라질 경우를 토론한다."
+  },
+  {
+    "n": 33,
+    "title": "부록 · mixed precision",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "일부 연산을 낮은 정밀도로 수행한다.",
+      "GPU에서 메모리와 속도 이점을 얻을 수 있다.",
+      "수치 안정성과 지원 dtype을 확인해야 한다."
+    ],
+    "focal": "속도 향상은 하드웨어와 모델에 의존한다",
+    "note": "이 강의의 필수 코드는 복잡도를 줄여 float32로 실행한다. 최신 환경의 torch.amp API를 확인하고 적용한다. CPU에서 GPU와 같은 이득을 기대하지 않는다."
+  },
+  {
+    "n": 34,
+    "title": "부록 · 재현성의 경계",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "seed는 난수 흐름을 고정하는 출발점이다.",
+      "device와 라이브러리 버전에 따라 결과가 달라질 수 있다.",
+      "완전한 bitwise 재현과 통계적 재현을 구분한다."
+    ],
+    "focal": "동일 설정 + 여러 seed + 분포 보고",
+    "note": "평균과 표준편차는 반복 수와 함께 적는다. seed 하나에서 이긴 기법을 보편적 승자로 부르지 않는다."
+  },
+  {
+    "n": 35,
+    "title": "부록 · 다음 실험 제안",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "residual on/off를 같은 조건으로 비교한다.",
+      "class recall을 구현하고 최약 클래스를 찾는다.",
+      "실패 사례를 한 가지 증강 가설로 연결한다."
+    ],
+    "focal": "자율 과제: residual ablation + 보고서",
+    "note": "리더용 해설은 projected shortcut과 클래스 지표 계산을 포함한다. 실험 결과는 실행마다 달라서 정해진 정확도 기준으로 통과 여부를 판정하지 않는다."
+  },
+  {
+    "n": 36,
+    "title": "시각 보충 · 패치와 필터의 곱",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "0",
+    "note": "숫자 4개씩을 직접 곱해 합한다. PyTorch의 cross-correlation 방식이며 필터를 뒤집지 않는다. 출력 한 칸의 계산과 전체 특징 맵을 구분한다."
+  },
+  {
+    "n": 37,
+    "title": "시각 보충 · 해상도와 채널의 흐름",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "1",
+    "note": "도형 크기는 해상도 감소를 나타내는 개념도이며 실제 텐서 크기의 정밀한 비율은 아니다. 각 단계의 B,C,H,W를 말하게 한다."
+  },
+  {
+    "n": 38,
+    "title": "시각 보충 · 혼동 행렬 읽기",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "2",
+    "note": "학습 결과가 아닌 계산 설명용 숫자다. 이 예시에서 precision과 recall이 우연히 같지만 분모는 다르다. B행에서 B를 A로 2개, C로 2개 혼동했다."
+  },
+  {
+    "n": 39,
+    "title": "시각 보충 · 공정한 실험의 두 경로",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "3",
+    "note": "두 경로의 차이를 한 칸으로 한정한 통제 실험 도식이다. seed를 맞추더라도 실제 난수 호출 흐름과 GPU 비결정성은 별도로 고려해야 한다."
+  },
+  {
+    "n": 40,
+    "title": "읽을거리와 출처",
+    "section": "참고",
+    "time": "",
+    "bullets": [
+      "PyTorch · 이미지 분류 튜토리얼",
+      "Conv2d · 공식 API",
+      "Deep Residual Learning · He et al."
+    ],
+    "focal": "원문 링크는 발표자 노트와 주차별 README에 수록",
+    "note": "PyTorch · 이미지 분류 튜토리얼\nhttps://docs.pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html\nConv2d · 공식 API\nhttps://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html\nDeep Residual Learning · He et al.\nhttps://arxiv.org/abs/1512.03385\n\n슬라이드 문장·도식과 실습 코드는 이 수업을 위해 새로 작성했다. 원문 그림을 복제하지 않았다."
+  }
+]

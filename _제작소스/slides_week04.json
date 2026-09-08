@@ -1,0 +1,506 @@
+[
+  {
+    "n": 1,
+    "title": "Attention ② 작은 Transformer 만들기",
+    "section": "오프닝",
+    "time": "00–02분 · 이번 주에 만들 결과물 확인",
+    "bullets": [
+      "multi-head attention과 pre-norm block을 구현한다.",
+      "소형 decoder 언어 모델을 학습하고 sampling을 비교한다.",
+      "데이터 누출·인과성·평가 조건을 검사한다."
+    ],
+    "focal": "BLOCKS\n→ LANGUAGE",
+    "note": "3주차 attention과 문자 코퍼스를 독립적으로 다시 정의해 이전 실행 상태 없이 시작할 수 있다. 기본 실습은 짧은 문맥과 작은 모델을 사용한다. 대형 모델 학습이나 챗봇 품질을 목표로 하지 않는다."
+  },
+  {
+    "n": 2,
+    "title": "90분 수업 지도",
+    "section": "운영",
+    "time": "02–05분 · 실습 노트북 열기",
+    "bullets": [
+      "00–05 도입 · 05–20 개념 · 20–35 수식과 손계산",
+      "35–50 구현 설계 · 50–75 실습 · 75–85 분석",
+      "85–90 회고 · 부록과 자율 과제는 수업 이후"
+    ],
+    "focal": "90 MIN  /  개념 45 + 실습 25 + 분석·회고 20",
+    "note": "시작 전에 실습의 환경 셀과 데이터 다운로드를 실행해 둔다. 핵심 구간의 종료 시간을 지키고 심화 질문은 부록으로 연결한다. 실습은 실행만 하는 시간이 아니라 예측, 관찰, 설명까지 포함한다."
+  },
+  {
+    "n": 3,
+    "title": "단일 헤드에서 multi-head로",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "같은 입력을 여러 부분 공간으로 투영한다.",
+      "각 헤드가 별도의 attention 분포를 계산한다.",
+      "헤드 출력을 합치고 출력 투영을 적용한다."
+    ],
+    "focal": "FLOW:X>head 1 / head 2 / head 3 / head 4>concat>W_O",
+    "note": "헤드마다 문법적 역할이 자동으로 하나씩 배정되는 것은 아니다. 서로 다른 혼합을 학습할 수 있는 구조적 여지를 준다고 설명한다."
+  },
+  {
+    "n": 4,
+    "title": "블록의 두 하위 연산",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "attention은 토큰 사이 정보를 섞는다.",
+      "FFN은 각 위치의 채널 표현을 비선형으로 바꾼다.",
+      "각 하위 연산에 residual 경로를 둔다."
+    ],
+    "focal": "FLOW:LayerNorm>Attention>+residual>LayerNorm>FFN + residual",
+    "note": "FFN은 위치별 같은 가중치를 사용하며 직접 다른 위치를 참조하지 않는다. CNN의 1×1 Conv와 채널 변환 관점에서 연결할 수 있다."
+  },
+  {
+    "n": 5,
+    "title": "LayerNorm과 BatchNorm",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "LayerNorm은 보통 각 토큰의 마지막 특징 축을 정규화한다.",
+      "배치의 다른 문장 통계를 모으지 않는다.",
+      "train/eval에서 BatchNorm처럼 running 통계를 전환하지 않는다."
+    ],
+    "focal": "LayerNorm(D): 각 [D] 벡터를 정규화",
+    "note": "LayerNorm에도 학습 가능한 scale과 bias가 있다. 정규화 차원을 지정하는 normalized_shape가 중요하다. B,T까지 함께 정규화하지 않도록 한다."
+  },
+  {
+    "n": 6,
+    "title": "pre-norm으로 쌓기",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "하위 연산 전에 LayerNorm을 적용한다.",
+      "residual 경로는 정규화 바깥으로 통과한다.",
+      "최종 블록 뒤에도 LayerNorm을 적용한다."
+    ],
+    "focal": "x ← x + Attn(LN(x)); x ← x + FFN(LN(x))",
+    "note": "원래 Transformer 논문의 post-norm과 수업의 pre-norm이 다르다는 점을 명시한다. 교육용 구현을 원문 완전 복제라고 소개하지 않는다."
+  },
+  {
+    "n": 7,
+    "title": "학습과 생성의 계산 차이",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "학습은 정답 문맥으로 모든 위치를 병렬 계산한다.",
+      "생성은 새 토큰 하나를 뽑은 뒤 다시 실행한다.",
+      "이전 예측의 실수가 다음 문맥에 들어간다."
+    ],
+    "focal": "teacher forcing / autoregressive generation",
+    "note": "오늘 생성 코드는 전체 문맥을 반복 계산해 단순하지만 비효율적이다. KV cache는 부록에서 개념만 다룬다."
+  },
+  {
+    "n": 8,
+    "title": "decoder-only 모델의 범위",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "token·position embedding과 여러 block을 연결한다.",
+      "마지막 Linear가 다음 문자 logits를 만든다.",
+      "지시 따르기나 대화 정렬 학습은 포함하지 않는다."
+    ],
+    "focal": "작은 next-token 모델 ≠ 완성된 대화 서비스",
+    "note": "구조를 배운 것과 대규모 데이터에서 능력이 생기는 것을 구분한다. 작은 모델의 철자 생성 결과를 과장하지 않는다."
+  },
+  {
+    "n": 9,
+    "title": "좋은 평가 단위",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "같은 held-out 토큰에 CE와 perplexity를 계산한다.",
+      "최고 validation checkpoint를 선택한다.",
+      "test는 선택 완료 후 한 번 사용한다."
+    ],
+    "focal": "토큰 수로 가중 평균한 CE → exp(CE)",
+    "note": "랜덤 배치 몇 개만 뽑으면 평가가 흔들린다. 노트북은 평가 시 고정된 연속 window를 사용하고 같은 표본에 대해 비교한다."
+  },
+  {
+    "n": 10,
+    "title": "헤드 shape 변환",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "d_model=64, heads=4이면 d_head=16이다.",
+      "[B,T,64]를 [B,T,4,16]으로 나눈다.",
+      "transpose 후 [B,4,T,16]으로 attention한다."
+    ],
+    "focal": "[B,H,T,d] @ [B,H,d,T] → [B,H,T,T]",
+    "note": "d_model이 heads로 나누어 떨어져야 한다. head 수를 늘린다고 d_model 고정에서 projection 파라미터가 단순히 head 수 배로 늘지 않는다."
+  },
+  {
+    "n": 11,
+    "title": "헤드 결합하기",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "결과 [B,H,T,d]를 [B,T,H,d]로 돌린다.",
+      "reshape로 [B,T,D]를 만든다.",
+      "W_O로 헤드 정보를 섞는다."
+    ],
+    "focal": "CODE:y = y.transpose(1, 2);;y = y.contiguous().view(B,T,D);;y = self.out(y)",
+    "note": "transpose 후 메모리 배치가 비연속일 수 있어 view 전에 contiguous가 필요하다. reshape는 필요한 경우 복사할 수 있다. 버그가 나면 shape뿐 아니라 축 의미를 읽는다."
+  },
+  {
+    "n": 12,
+    "title": "FFN의 폭과 파라미터",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "D→4D→D의 두 선형층을 사용한다.",
+      "중간에 GELU와 dropout을 넣을 수 있다.",
+      "attention 외에 FFN도 큰 파라미터 비중을 가진다."
+    ],
+    "focal": "FFN weight count ≈ 8D² (bias 제외)",
+    "note": "D×4D와 4D×D를 더해 8D²다. Q,K,V,O 투영은 약 4D²이므로 작은 블록에서도 FFN을 무시할 수 없다."
+  },
+  {
+    "n": 13,
+    "title": "LayerNorm 계산",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "한 토큰의 D개 값에서 평균과 분산을 구한다.",
+      "표준화 후 학습 가능한 affine 변환을 한다.",
+      "배치 크기 B에 직접 의존하지 않는다."
+    ],
+    "focal": "LN(h) = γ ⊙ (h−mean(h))/sqrt(var(h)+ε) + β",
+    "note": "노트북의 nn.LayerNorm(D)는 마지막 D축에 적용한다. 정규화로 모든 값이 같은 것이 아니라 평균과 스케일을 조정하는 것이다."
+  },
+  {
+    "n": 14,
+    "title": "top-k sampling",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "vocabulary 중 점수가 높은 k개만 남긴다.",
+      "나머지는 −∞로 바꾼 뒤 softmax한다.",
+      "k=1이면 최대 점수 토큰만 선택한다."
+    ],
+    "focal": "logits < kth_value → −∞",
+    "note": "ties 처리 때문에 임계값 방식은 k개보다 많이 남길 수 있다. 실습은 topk 인덱스를 scatter해 정확히 k개를 남긴다. k는 1부터 vocabulary 크기까지 제한한다."
+  },
+  {
+    "n": 15,
+    "title": "perplexity 해석",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "CE가 ln(10)이면 perplexity는 10이다.",
+      "확률적으로 유효한 선택지 수라는 직관으로 읽을 수 있다.",
+      "정확한 후보 개수를 세는 지표는 아니다."
+    ],
+    "focal": "PPL = exp(평균 token NLL)",
+    "note": "배치별 perplexity의 평균과 전체 CE의 exp는 다르다. loss를 먼저 표본 수로 집계한 뒤 exp한다. 같은 vocabulary의 uniform baseline도 참고할 수 있다."
+  },
+  {
+    "n": 16,
+    "title": "모듈을 네 부분으로 나누기",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "CausalMHA는 헤드 분할·mask·결합을 맡는다.",
+      "Block은 LN·residual·FFN을 묶는다.",
+      "TinyTransformer는 embedding과 block stack·head를 연결한다."
+    ],
+    "focal": "FLOW:Embedding>Block × 2>LayerNorm>LM head",
+    "note": "한 클래스에 모든 연산을 넣기보다 기능별로 나누면 shape와 causal 테스트가 쉽다. notebook은 외부 모듈 import 없이 모든 정의를 포함한다."
+  },
+  {
+    "n": 17,
+    "title": "dropout이 평가를 흔들지 않게",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "학습에서는 model.train()으로 dropout을 활성화한다.",
+      "평가·생성·causal 검사에서는 model.eval()을 사용한다.",
+      "평가를 마친 후 학습 모드를 복원한다."
+    ],
+    "focal": "반복 forward가 같은지 eval에서 확인",
+    "note": "no_grad만 사용하면 dropout은 계속 작동한다. 직접 구현은 nn.Dropout을 사용하며 SDPA의 dropout_p 설정과 규칙이 다르다."
+  },
+  {
+    "n": 18,
+    "title": "학습 안정성 점검",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "loss가 유한한지 확인하고 gradient norm을 기록한다.",
+      "필요하면 clip_grad_norm_으로 큰 gradient를 제한한다.",
+      "optimizer는 모든 학습 파라미터를 받아야 한다."
+    ],
+    "focal": "zero_grad → backward → clip → step",
+    "note": "clip을 backward 전에 호출하면 현재 gradient가 없다. clipping은 데이터 누출이나 잘못된 loss를 고쳐 주지 않는다. max_norm=1.0은 수업 기본값이지 보편적 최적값이 아니다."
+  },
+  {
+    "n": 19,
+    "title": "실험 예산을 명시하기",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "steps·batch·context 길이로 처리 토큰 수를 계산한다.",
+      "비교할 때 parameter 수와 학습 시간을 함께 기록한다.",
+      "하나의 seed 결과는 탐색 결과로 표현한다."
+    ],
+    "focal": "processed tokens = steps × B × T",
+    "note": "모델이 보는 window는 겹칠 수 있어 처리 토큰 수가 고유 데이터 양과 같지 않다. GPU를 바꾸면 같은 시간 예산의 업데이트 수가 달라진다."
+  },
+  {
+    "n": 20,
+    "title": "checkpoint에 넣을 것",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "model state와 구조 설정을 저장한다.",
+      "vocabulary와 토큰화 규칙도 함께 저장한다.",
+      "생성을 재현하려면 prompt·sampling 설정·seed를 남긴다."
+    ],
+    "focal": "weights + config + vocabulary + run settings",
+    "note": "state_dict만으로 다른 모델 구조를 자동 복원할 수 없다. 외부 출처 checkpoint를 무심코 실행하지 말고 본인이 만든 파일을 읽는다. 실습은 로컬 생성 파일만 사용한다."
+  },
+  {
+    "n": 21,
+    "title": "LAB 1 · multi-head 구현 검사",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §1–3: head shape와 causal mask를 확인한다.",
+      "미래 토큰 변경에 과거 logits가 불변인지 검사한다.",
+      "모델 파라미터 수를 출력한다."
+    ],
+    "focal": "50–59분 / 산출물: shape·causality assert",
+    "note": "mask는 모든 head와 batch에 브로드캐스트된다. 미래 변경은 중간 위치 이후만 바꾸고 그 이전 출력들을 비교한다. padding 없는 고정 window를 사용한다."
+  },
+  {
+    "n": 22,
+    "title": "LAB 2 · 학습과 평가",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §4: TinyTransformer를 짧게 학습한다.",
+      "train/validation CE 곡선을 저장한다.",
+      "최고 val state를 복원하고 test CE를 구한다."
+    ],
+    "focal": "59–69분 / 산출물: CE 곡선 + 최종 PPL",
+    "note": "시간이 부족하면 steps를 줄이되 평가 셀을 생략하지 않는다. 기본 학습으로 유창한 문장이 나오지 않을 수 있다. 검증 보고서의 실제 출력과 함께 설명한다."
+  },
+  {
+    "n": 23,
+    "title": "LAB 3 · 생성 제어",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §5–6: greedy, temperature, top-k를 비교한다.",
+      "동일 prompt와 seed를 사용하고 반복성을 관찰한다.",
+      "checkpoint를 저장·복원해 logits가 같은지 확인한다."
+    ],
+    "focal": "69–75분 / 산출물: 4개 생성 결과 + 복원 검사",
+    "note": "각 조건을 여러 번 봐야 안정적으로 평가할 수 있다. 과도하게 높은 온도는 다양성뿐 아니라 오류도 늘릴 수 있다. 저장 파일은 실행 위치의 outputs 폴더에 생성된다."
+  },
+  {
+    "n": 24,
+    "title": "어떤 샘플링이 좋은가",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "greedy는 반복되고 단조로울 수 있다.",
+      "온도를 높이면 낮은 확률 문자도 더 자주 나온다.",
+      "top-k는 후보를 제한하지만 사실성을 보장하지 않는다."
+    ],
+    "focal": "유창성 / 반복 / 다양성 / 목적",
+    "note": "샘플링 변화는 가중치를 다시 학습하는 것이 아니다. 생성 알고리즘과 모델 학습을 구분해서 보고한다."
+  },
+  {
+    "n": 25,
+    "title": "헤드 수 실험 해석",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "D를 고정하면 head당 차원이 달라진다.",
+      "head 수가 많아도 성능이 항상 좋아지지 않는다.",
+      "같은 예산과 여러 seed로 비교한다."
+    ],
+    "focal": "H↑ ⇒ d_head=D/H↓",
+    "note": "더 많은 헤드가 더 많은 독립 지식을 저장한다는 설명은 피한다. 다른 분할 방식이 최적화와 표현에 영향을 주는 것을 실험한다."
+  },
+  {
+    "n": 26,
+    "title": "학습 데이터와 생성 결과",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "훈련 문장의 반복을 생성 능력으로 과장하지 않는다.",
+      "새 조합에서도 규칙을 유지하는지 관찰한다.",
+      "합성 코퍼스 성능을 일반 자연어로 외삽하지 않는다."
+    ],
+    "focal": "암기 / 조합 일반화 / 실제 언어 능력 구분",
+    "note": "데이터의 문법 자체가 단순하므로 평가 난도가 낮다. 모델 능력을 논하려면 더 다양한 실제 held-out 데이터와 적합한 지표가 필요하다."
+  },
+  {
+    "n": 27,
+    "title": "출구 퀴즈",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "Q1. D=96, H=6이면 head 차원은?",
+      "Q2. FFN은 서로 다른 위치를 직접 섞을까?",
+      "Q3. 생성 시 dropout을 끄는 호출은?"
+    ],
+    "focal": "shape / 연산 역할 / 실행 모드",
+    "note": "정답: 16, 직접 섞지 않음, model.eval(). no_grad는 메모리 절약과 gradient 비활성화를 위해 함께 사용한다."
+  },
+  {
+    "n": 28,
+    "title": "다음: 확률 분포에서 이미지 생성",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "언어 모델은 다음 토큰의 분포를 학습했다.",
+      "VAE는 잠재변수와 이미지의 확률적 관계를 학습한다.",
+      "우도·샘플링·표현이라는 공통 주제로 이어진다."
+    ],
+    "focal": "다음: z를 뽑아 새로운 이미지를 만든다",
+    "note": "autoregressive 모델과 VAE는 생성 분해 방식이 다르다. VAE가 언어 모델을 대체하는 후속 단계라기보다 다른 생성 모델 계열이라고 설명한다."
+  },
+  {
+    "n": 29,
+    "title": "부록 · sinusoidal position",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "위치마다 사인·코사인 주파수를 조합한다.",
+      "학습형 위치 embedding과 다른 설계 선택이다.",
+      "더 긴 길이의 성능이 자동 보장되는 것은 아니다."
+    ],
+    "focal": "PE(pos,2i)=sin(pos / 10000^(2i/D))",
+    "note": "수업 구현은 learned positional embedding을 쓴다. 원 논문의 위치 표현과 차이를 비교한다. 모양을 그려 주파수가 다른 축들을 관찰한다."
+  },
+  {
+    "n": 30,
+    "title": "부록 · KV cache",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "생성 중 과거 key와 value를 저장해 재사용한다.",
+      "새 토큰의 query 중심으로 추가 계산한다.",
+      "cache 길이와 위치 인덱스 관리가 필요하다."
+    ],
+    "focal": "반복 계산 감소 ↔ cache 메모리 증가",
+    "note": "오늘 sliding window와 learned position을 그대로 캐시화하면 위치 재설정 문제가 생긴다. 단순히 과거 K,V를 붙이는 것만으로 정확한 구현이 되지 않을 수 있다."
+  },
+  {
+    "n": 31,
+    "title": "부록 · weight tying",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "token embedding과 출력 projection 가중치를 공유할 수 있다.",
+      "vocabulary 관련 파라미터 수를 줄인다.",
+      "shape와 초기화 전략을 확인한다."
+    ],
+    "focal": "lm_head.weight = token_embedding.weight",
+    "note": "수업 핵심은 독립 가중치를 사용한다. tying을 추가할 때 optimizer가 중복 업데이트하지 않는지 파라미터 집계를 확인한다."
+  },
+  {
+    "n": 32,
+    "title": "부록 · top-p sampling",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "정렬된 확률의 누적합이 p에 닿는 후보 집합을 쓴다.",
+      "확신 수준에 따라 후보 수가 달라진다.",
+      "최소 한 개의 후보를 유지해야 한다."
+    ],
+    "focal": "고정 k / 가변 nucleus",
+    "note": "threshold를 넘기는 첫 토큰을 포함할지의 구현을 주의한다. 자율 과제의 도전 구현으로 제안하며 핵심 실습은 top-k까지만 한다."
+  },
+  {
+    "n": 33,
+    "title": "부록 · SDPA 사용 시 주의",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "fused attention API가 속도·메모리를 개선할 수 있다.",
+      "dropout_p는 eval에서 자동 0이 된다고 가정하지 않는다.",
+      "직접 구현과 dropout=0에서 수치 비교한다."
+    ],
+    "focal": "dropout_p = p if training else 0.0",
+    "note": "공식 문서를 확인한 뒤 사용한다. bool mask는 True=허용이다. 수치 허용 오차는 dtype과 device에 맞춰 설정한다."
+  },
+  {
+    "n": 34,
+    "title": "부록 · 긴 문맥과 학습 예산",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "T 증가로 한 step의 토큰 수와 attention 비용이 늘어난다.",
+      "같은 steps 비교는 처리 토큰 예산이 달라진다.",
+      "동일 토큰 예산과 동일 시간 예산을 구분한다."
+    ],
+    "focal": "공정성의 기준을 먼저 정한다",
+    "note": "정확히 같은 모든 조건을 동시에 고정할 수 없는 경우가 있다. 무엇을 고정하고 무엇이 바뀌었는지 표에 명시하는 것이 중요하다."
+  },
+  {
+    "n": 35,
+    "title": "부록 · 작은 프로젝트 제안",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "head 수 또는 FFN 폭을 한 가지 바꾼다.",
+      "학습 곡선과 생성 오류 유형을 함께 비교한다.",
+      "세 번 반복하고 평균·변동을 보고한다."
+    ],
+    "focal": "자율 과제: top-k + block + head ablation",
+    "note": "좋은 실험에는 실패 사례와 개선되지 않은 조건도 포함된다. 리더 해설의 참고 구현으로 단위 검사를 확인하고 결과 해석은 직접 작성한다."
+  },
+  {
+    "n": 36,
+    "title": "시각 보충 · 미래를 가리는 삼각형",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "0",
+    "note": "0-based index에서 세 번째 행을 가리킨다. 대각선을 차단하지 않는다. 첫 행도 자기 자신을 볼 수 있어 all-masked softmax NaN을 피한다."
+  },
+  {
+    "n": 37,
+    "title": "시각 보충 · head 분할과 결합",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "1",
+    "note": "4개 head로 나누어도 최종 D는 64다. 실제 Q,K,V는 각각 [B,4,T,16]으로 계산한다. 이 도식은 head별 결과 결합을 보여 준다."
+  },
+  {
+    "n": 38,
+    "title": "시각 보충 · next-token shift",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "2",
+    "note": "입력 길이 T에 대해 원본 토큰 T+1개가 필요하다. 다음 토큰 정답은 입력의 바로 다음 열이므로 causal mask가 없으면 정답을 볼 수 있다."
+  },
+  {
+    "n": 39,
+    "title": "시각 보충 · temperature와 확률",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "3",
+    "note": "실제 학습 모델의 결과가 아닌 설명용 logits의 정확한 softmax 계산이다. 온도를 높이면 분포가 완만해진다. τ=0은 허용하지 않는다."
+  },
+  {
+    "n": 40,
+    "title": "읽을거리와 출처",
+    "section": "참고",
+    "time": "",
+    "bullets": [
+      "Attention Is All You Need · Vaswani et al.",
+      "Scaled Dot Product Attention · 공식 API",
+      "CrossEntropyLoss · 공식 API"
+    ],
+    "focal": "원문 링크는 발표자 노트와 주차별 README에 수록",
+    "note": "Attention Is All You Need · Vaswani et al.\nhttps://arxiv.org/abs/1706.03762\nScaled Dot Product Attention · 공식 API\nhttps://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html\nCrossEntropyLoss · 공식 API\nhttps://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html\n\n슬라이드 문장·도식과 실습 코드는 이 수업을 위해 새로 작성했다. 원문 그림을 복제하지 않았다."
+  }
+]

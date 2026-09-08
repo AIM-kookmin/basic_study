@@ -1,0 +1,506 @@
+[
+  {
+    "n": 1,
+    "title": "Attention ① 관계를 계산하는 방법",
+    "section": "오프닝",
+    "time": "00–02분 · 이번 주에 만들 결과물 확인",
+    "bullets": [
+      "Q·K·V와 scaled dot-product attention을 손으로 계산한다.",
+      "causal mask와 텐서 shape를 검증한다.",
+      "단일 헤드 문자 언어 모델을 학습하고 생성한다."
+    ],
+    "focal": "TOKENS\n→ RELATIONS",
+    "note": "행렬 곱, softmax, cross entropy를 복습한다. 외부 텍스트 다운로드 없이 교육용으로 직접 만든 문장 코퍼스를 사용한다. 결과는 언어 모델 원리 관찰용이며 자연어 능력 벤치마크가 아니다."
+  },
+  {
+    "n": 2,
+    "title": "90분 수업 지도",
+    "section": "운영",
+    "time": "02–05분 · 실습 노트북 열기",
+    "bullets": [
+      "00–05 도입 · 05–20 개념 · 20–35 수식과 손계산",
+      "35–50 구현 설계 · 50–75 실습 · 75–85 분석",
+      "85–90 회고 · 부록과 자율 과제는 수업 이후"
+    ],
+    "focal": "90 MIN  /  개념 45 + 실습 25 + 분석·회고 20",
+    "note": "시작 전에 실습의 환경 셀과 데이터 다운로드를 실행해 둔다. 핵심 구간의 종료 시간을 지키고 심화 질문은 부록으로 연결한다. 실습은 실행만 하는 시간이 아니라 예측, 관찰, 설명까지 포함한다."
+  },
+  {
+    "n": 3,
+    "title": "언어 모델의 과제",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "앞의 토큰을 보고 다음 토큰의 분포를 예측한다.",
+      "학습 입력과 정답은 한 칸 어긋난 시퀀스다.",
+      "생성은 예측한 토큰을 문맥 뒤에 붙이며 반복한다."
+    ],
+    "focal": "FLOW:the ca>다음 토큰 분포>t 샘플링>the cat",
+    "note": "토큰은 단어와 같지 않다. 오늘은 구현이 단순한 문자 단위를 사용한다. 실제 대형 언어 모델의 subword 토큰화와는 다르다."
+  },
+  {
+    "n": 4,
+    "title": "문자를 정수로 바꾸기",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "train 문자 집합으로 vocabulary를 만든다.",
+      "각 문자를 ID로 바꾸고 embedding에서 벡터를 찾는다.",
+      "모르는 문자를 위한 UNK를 둔다."
+    ],
+    "focal": "문자 → token ID → 학습 가능한 벡터",
+    "note": "정수 ID의 크기는 의미적 순서가 아니다. ID 7이 ID 3보다 어떤 의미로 크다는 뜻이 아니다. embedding은 학습되는 lookup table이다."
+  },
+  {
+    "n": 5,
+    "title": "고정 문맥의 한계",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "bigram은 바로 이전 문자에만 조건부로 의존한다.",
+      "문장 의미는 더 먼 위치에도 의존할 수 있다.",
+      "어텐션은 문맥 안의 여러 위치를 가중합한다."
+    ],
+    "focal": "p(x_t ∣ x_<t) 와 p(x_t ∣ x_(t−1))",
+    "note": "문맥 창 밖 정보는 오늘 모델에서 접근할 수 없다. 어텐션이 모든 기억을 무한히 보관하는 구조가 아님을 짚는다."
+  },
+  {
+    "n": 6,
+    "title": "Q·K·V의 역할",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "Query는 현재 위치가 찾는 관계의 기준이다.",
+      "Key는 각 위치가 비교에 내놓는 표현이다.",
+      "Value는 가중합으로 전달할 내용이다."
+    ],
+    "focal": "FLOW:X>Q=XW_Q / K=XW_K / V=XW_V>유사도>가중합",
+    "note": "도서관 검색 비유는 직관일 뿐 각 차원이 실제 검색어에 대응하는 것은 아니다. 세 투영은 서로 다른 학습 파라미터다. self-attention에서는 같은 X에서 세 가지를 만든다."
+  },
+  {
+    "n": 7,
+    "title": "self와 cross attention",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "self-attention은 Q·K·V가 같은 시퀀스에서 나온다.",
+      "cross-attention은 Q와 K·V의 출처가 다르다.",
+      "오늘은 decoder 방식의 causal self-attention을 만든다."
+    ],
+    "focal": "self: X→Q,K,V / cross: X→Q, Y→K,V",
+    "note": "원래 Transformer 논문은 encoder-decoder 구조다. 이 수업의 소형 문자 모델은 decoder-only 교육용 모델이며 논문 전체를 그대로 재현하지 않는다."
+  },
+  {
+    "n": 8,
+    "title": "미래를 보지 않는 규칙",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "위치 t는 위치 t 이하만 볼 수 있다.",
+      "학습에서 모든 위치를 병렬로 계산해도 이 규칙을 지킨다.",
+      "미래 점수에 −∞를 넣고 softmax한다."
+    ],
+    "focal": "FLOW:점수 행렬>상삼각 차단>행별 softmax>과거 정보 혼합",
+    "note": "mask 없이 한 칸 밀린 정답을 학습하면 뒤 위치의 정답 정보가 들어와 손실이 부당하게 낮아진다. 입력에 현재 문자는 있고 목표는 그 다음 문자이므로 대각선은 허용한다."
+  },
+  {
+    "n": 9,
+    "title": "위치 정보가 필요한 이유",
+    "section": "개념",
+    "time": "05–20분",
+    "bullets": [
+      "내용만 같으면 순서 차이를 직접 표시하기 어렵다.",
+      "토큰 embedding에 위치 embedding을 더한다.",
+      "문맥 길이는 위치 embedding 범위를 넘지 않아야 한다."
+    ],
+    "focal": "H_t = token_embedding(x_t) + position_embedding(t)",
+    "note": "causal mask도 순서 구조를 제공하지만 위치 embedding은 위치를 명시적으로 표현한다. 순서를 전혀 모른다는 단정 대신 명시적 위치 표현의 목적을 설명한다."
+  },
+  {
+    "n": 10,
+    "title": "전체 식을 세 단계로 읽기",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "QKᵀ로 query와 key의 내적을 계산한다.",
+      "sqrt(d_k)로 나누고 각 행을 softmax한다.",
+      "행의 가중치로 V를 합한다."
+    ],
+    "focal": "Attention(Q,K,V) = softmax(QKᵀ / sqrt(d_k) + M)V",
+    "note": "softmax는 key 축인 마지막 차원에 적용한다. query마다 별도의 확률 분포가 나온다. 값의 차원 d_v는 일반적으로 d_k와 같을 필요가 없지만 오늘은 같게 둔다."
+  },
+  {
+    "n": 11,
+    "title": "shape 추적표",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "Q,K,V는 [B,T,D]다.",
+      "Q @ K.transpose(−2,−1)은 [B,T,T]다.",
+      "가중치 @ V의 결과는 [B,T,D]다."
+    ],
+    "focal": "[B,T,D] × [B,D,T] → [B,T,T]",
+    "note": "transpose를 배치 축에 적용하는 실수를 경계한다. B는 독립된 시퀀스 묶음이다. 다른 배치의 문장끼리 attention하지 않는다."
+  },
+  {
+    "n": 12,
+    "title": "손계산 · 두 key와 한 query",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "q=[1,0], k₁=[1,0], k₂=[0,1]로 둔다.",
+      "scaled score는 [0.707,0]이다.",
+      "softmax는 약 [0.670,0.330]이다."
+    ],
+    "focal": "v₁=[2,0], v₂=[0,2] → output≈[1.34,0.66]",
+    "note": "내적, 나눗셈, 지수와 정규화, value 가중합을 순서대로 적는다. output은 key 벡터의 평균이 아니라 value 벡터의 가중합이라는 점을 다시 확인한다."
+  },
+  {
+    "n": 13,
+    "title": "왜 sqrt(d_k)로 나눌까",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "독립·평균 0·분산 1인 성분을 가정한다.",
+      "d_k개 곱의 합은 분산이 d_k 규모가 된다.",
+      "스케일을 줄여 softmax가 너무 뾰족해지는 것을 완화한다."
+    ],
+    "focal": "Var(q·k)≈d_k → Var((q·k)/sqrt(d_k))≈1",
+    "note": "이는 초기 분포에 대한 직관이지 모든 학습 시점의 정확한 분산 보장이 아니다. 큰 logits에서는 softmax가 포화해 gradient가 작아질 수 있다."
+  },
+  {
+    "n": 14,
+    "title": "causal mask 손으로 채우기",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "길이 3이면 첫 행은 첫 key만 허용한다.",
+      "둘째 행은 첫째·둘째 key를 허용한다.",
+      "마지막 행은 세 key를 모두 허용한다."
+    ],
+    "focal": "M = [[0,−∞,−∞],[0,0,−∞],[0,0,0]]",
+    "note": "softmax 전에 mask를 더하거나 masked_fill한다. 행 전체를 −∞로 만들면 NaN이 될 수 있다. 오늘의 대각선 허용 mask는 각 행에 최소 한 개 허용 위치가 있다."
+  },
+  {
+    "n": 15,
+    "title": "언어 모델 손실",
+    "section": "수식",
+    "time": "20–35분",
+    "bullets": [
+      "logits는 [B,T,Vocab]이고 target은 [B,T]다.",
+      "B와 T를 묶어 위치별 cross entropy를 계산한다.",
+      "평균 손실의 지수값은 이 설정의 perplexity다."
+    ],
+    "focal": "CE(logits.reshape(−1,V), target.reshape(−1))",
+    "note": "perplexity는 같은 tokenizer, 데이터, 평가 조건에서 비교한다. 문자 모델과 subword 모델의 perplexity를 그대로 비교하면 의미가 다르다. 자연로그 CE를 사용하므로 exp를 취한다."
+  },
+  {
+    "n": 16,
+    "title": "한 헤드부터 직접 구현",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "Linear 세 개로 Q·K·V를 만든다.",
+      "scaled score와 causal mask를 직접 계산한다.",
+      "attention 결과를 vocabulary logits로 변환한다."
+    ],
+    "focal": "FLOW:token+position>single-head attention>Linear>next token",
+    "note": "이 모델은 residual과 FFN을 갖춘 완전한 Transformer block이 아니다. 4주차에서 그 요소를 추가한다. 간단한 모델로 attention 핵심을 분리해 배운다."
+  },
+  {
+    "n": 17,
+    "title": "softmax 축을 검증하기",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "각 query 행의 가중치 합이 1인지 검사한다.",
+      "미래 key의 가중치가 0인지 검사한다.",
+      "출력 shape와 유한값 여부를 검사한다."
+    ],
+    "focal": "CODE:assert torch.allclose(A.sum(-1),;;    torch.ones_like(A.sum(-1)))",
+    "note": "softmax(dim=1)처럼 query 축을 정규화해도 shape는 맞아 오류가 숨을 수 있다. shape 검사만으로 충분하지 않아 의미적 불변량을 함께 확인한다."
+  },
+  {
+    "n": 18,
+    "title": "코퍼스를 먼저 분할하기",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "문장 단위 train/validation/test를 먼저 나눈다.",
+      "각 split 안에서만 문자 시퀀스와 window를 만든다.",
+      "겹치는 window를 무작위로 나눈 뒤 평가하지 않는다."
+    ],
+    "focal": "문장 분할 → 인코딩 → split별 window",
+    "note": "교육용 코퍼스는 동일 문법의 조합 문장이다. exact duplicate 문장은 split 간 중복되지 않지만 문법과 단어는 공유하므로 일반 자연어 일반화 증거가 아니다. UNK 비율을 확인한다."
+  },
+  {
+    "n": 19,
+    "title": "입력과 target 확인",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "block_size=32면 33개 토큰이 필요하다.",
+      "앞 32개는 입력, 뒤 32개는 정답이다.",
+      "decode로 한 칸 shift를 눈으로 확인한다."
+    ],
+    "focal": "x=tokens[i:i+T], y=tokens[i+1:i+T+1]",
+    "note": "train과 val 토큰을 이어 붙여 window를 만들면 경계를 넘어 데이터가 섞인다. 노트북 함수는 주어진 split만 사용한다. 생성 prompt도 vocabulary 범위 안으로 인코딩한다."
+  },
+  {
+    "n": 20,
+    "title": "샘플링은 선택 규칙이다",
+    "section": "설계",
+    "time": "35–50분",
+    "bullets": [
+      "argmax는 가장 높은 확률을 항상 고른다.",
+      "multinomial은 분포에서 무작위로 뽑는다.",
+      "temperature는 logits를 나눠 분포의 집중도를 바꾼다."
+    ],
+    "focal": "p = softmax(logits / temperature), temperature > 0",
+    "note": "temperature가 낮아지면 더 집중된다. 생성에는 eval과 no_grad를 사용하고 문맥을 마지막 block_size만 남긴다. 같은 prompt라도 seed와 설정에 따라 결과가 달라진다."
+  },
+  {
+    "n": 21,
+    "title": "LAB 1 · attention 연산 구현",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §1–3: Q·K·V 손계산과 코드를 비교한다.",
+      "mask 전후 heatmap을 나란히 그린다.",
+      "행 합·미래 차단·shape assert를 통과한다."
+    ],
+    "focal": "50–58분 / 산출물: 점수와 attention heatmap",
+    "note": "heatmap의 행은 query, 열은 key다. 숫자를 읽어 첫 행이 자기 자신에 1을 주는지 확인한다. 이 손계산 Q,K,V는 학습된 값이 아닌 설명용 값이다."
+  },
+  {
+    "n": 22,
+    "title": "LAB 2 · 문자 언어 모델 학습",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §4–5: 코퍼스 분할과 shift를 확인한다.",
+      "bigram과 단일 헤드 모델을 짧게 학습한다.",
+      "동일 validation 토큰에서 손실을 비교한다."
+    ],
+    "focal": "58–70분 / 산출물: CE·perplexity 비교",
+    "note": "두 모델은 구조와 파라미터 수가 달라 엄밀한 attention 단독 효과 실험은 아니다. 유의미한 방향을 관찰하는 기준 비교다. 최종 선택은 val을 사용한다."
+  },
+  {
+    "n": 23,
+    "title": "LAB 3 · 생성과 누출 검사",
+    "section": "실습",
+    "time": "50–75분 · practice.ipynb와 함께 진행",
+    "bullets": [
+      "practice §6–7: temperature를 바꾸어 생성한다.",
+      "미래 토큰만 바꿔 이전 logits가 동일한지 검사한다.",
+      "학습된 attention 한 행을 읽고 한계를 적는다."
+    ],
+    "focal": "70–75분 / 산출물: 생성 3개 + causal 검사",
+    "note": "미래 변경에 앞부분 logits가 변하면 mask나 attention 계산 축을 점검한다. eval 모드로 dropout 등을 끈 뒤 비교해야 한다. 어텐션 가중치를 문법 이해의 직접 증거로 해석하지 않는다."
+  },
+  {
+    "n": 24,
+    "title": "좋은 문자열과 좋은 모델",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "그럴듯한 샘플 한 개는 충분한 평가가 아니다.",
+      "held-out loss와 여러 prompt 출력을 함께 본다.",
+      "반복·철자·문장 구조를 분리해 기록한다."
+    ],
+    "focal": "숫자 평가 + 표본 관찰 + 데이터 한계",
+    "note": "작은 합성 코퍼스는 생성 모델의 흐름을 보여 주기 위한 장치다. 작은 perplexity가 실제 글쓰기 능력을 의미하지 않는다. 선택한 좋은 샘플만 발표하지 않는다."
+  },
+  {
+    "n": 25,
+    "title": "mask를 빼면 왜 손실이 낮을까",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "학습 target은 입력의 다음 위치에 존재한다.",
+      "미래 참조를 허용하면 정답을 훔쳐볼 수 있다.",
+      "생성 시 미래가 없으므로 평가와 사용 조건이 달라진다."
+    ],
+    "focal": "낮은 손실이 항상 좋은 모델은 아니다",
+    "note": "양방향 attention 자체가 잘못된 것은 아니다. causal 다음 토큰 학습이라는 목적과 맞지 않는 것이 문제다. masked language modeling과 구분한다."
+  },
+  {
+    "n": 26,
+    "title": "attention 그림의 한계",
+    "section": "분석",
+    "time": "75–85분",
+    "bullets": [
+      "가중치는 value를 섞는 계수다.",
+      "뒤의 Linear와 다른 표현 경로도 예측에 영향을 준다.",
+      "높은 가중치를 인과적 중요도로 단정하지 않는다."
+    ],
+    "focal": "관계를 관찰하되 설명을 과장하지 않는다",
+    "note": "특정 key의 value를 제거하거나 토큰을 바꾸는 실험도 가능하지만 그 역시 분포 변화를 만든다. 해석의 한계를 명시하는 습관을 배운다."
+  },
+  {
+    "n": 27,
+    "title": "출구 퀴즈",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "Q1. QKᵀ가 만드는 두 T축은 각각 무엇인가?",
+      "Q2. mask는 softmax 전과 후 중 언제 적용할까?",
+      "Q3. value 대신 key를 가중합하면 같은 연산일까?"
+    ],
+    "focal": "query 위치 / key 위치 / 전달할 내용",
+    "note": "정답: 행=query, 열=key; softmax 전; 일반적으로 다르다. 후에 0으로만 지우면 행 합이 1이 아니며 재정규화 등 별도 처리가 필요하다."
+  },
+  {
+    "n": 28,
+    "title": "다음: 여러 관점과 깊이",
+    "section": "회고",
+    "time": "85–90분",
+    "bullets": [
+      "단일 헤드로 한 종류의 혼합을 만들었다.",
+      "여러 헤드와 FFN으로 표현을 확장한다.",
+      "residual과 LayerNorm으로 블록을 연결한다."
+    ],
+    "focal": "자율 과제: mask·scaled attention·문맥 길이",
+    "note": "자율 과제에서는 SDPA 공식 API와 직접 구현을 비교한다. API마다 boolean mask의 의미가 다를 수 있음을 다음 부록과 연결한다."
+  },
+  {
+    "n": 29,
+    "title": "부록 · 안정적인 softmax",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "각 행에서 최댓값을 빼도 확률은 같다.",
+      "지수 계산의 overflow 위험을 줄인다.",
+      "PyTorch softmax는 직접 exp를 나누는 것보다 적절하다."
+    ],
+    "focal": "softmax(s) = softmax(s−max(s))",
+    "note": "softmax 함수의 이동 불변성을 손으로 유도한다. temperature로 나누는 스케일 변환과 최댓값을 빼는 이동은 다른 연산이다."
+  },
+  {
+    "n": 30,
+    "title": "부록 · padding mask",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "길이가 다른 문장을 배치로 묶을 때 padding을 넣는다.",
+      "padding key를 보지 않도록 차단할 수 있다.",
+      "padding target은 손실에서 ignore_index로 제외한다."
+    ],
+    "focal": "causal mask + padding key mask + loss mask",
+    "note": "오늘 고정 길이 window에는 padding이 필요 없다. attention mask와 loss mask는 서로 대체되지 않는다. 모두 masked인 query 행의 NaN도 고려한다."
+  },
+  {
+    "n": 31,
+    "title": "부록 · API의 boolean mask",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "직접 masked_fill은 True인 곳을 차단하도록 작성할 수 있다.",
+      "SDPA의 bool attn_mask는 True인 곳을 허용한다.",
+      "MultiheadAttention의 일부 mask 규칙과 혼동하지 않는다."
+    ],
+    "focal": "사용 중인 API 문서를 먼저 확인한다",
+    "note": "수업 구현은 변수명을 blocked로 두어 True=차단을 명시한다. SDPA와 비교할 때는 ~blocked를 전달한다. 규칙을 외우기보다 작은 행렬로 검증한다."
+  },
+  {
+    "n": 32,
+    "title": "부록 · 문맥 길이와 비용",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "attention 행렬은 T×T다.",
+      "문맥 길이를 두 배로 하면 원소 수는 네 배다.",
+      "projection 비용과 batch 크기도 총비용에 영향을 준다."
+    ],
+    "focal": "attention matrix memory ∝ B T²",
+    "note": "효율적 구현은 전체 행렬 저장을 줄일 수 있으나 수업의 명시적 구현은 실제 T² 행렬을 만든다. 계산 복잡도와 메모리 구현을 구분한다."
+  },
+  {
+    "n": 33,
+    "title": "부록 · tokenizer의 선택",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "문자 단위는 vocabulary가 작고 시퀀스가 길다.",
+      "단어 단위는 희귀 단어와 UNK 문제가 커진다.",
+      "subword는 두 방식 사이의 절충을 제공한다."
+    ],
+    "focal": "토큰화가 바뀌면 T와 V가 함께 바뀐다",
+    "note": "오늘 영문 합성 코퍼스를 쓰는 이유는 원리를 가볍게 실행하기 위해서다. 한국어로 바꿀 때는 자모와 완성형 문자, 띄어쓰기 정책도 고려한다."
+  },
+  {
+    "n": 34,
+    "title": "부록 · 온도 손계산",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "logits=[2,1,0]에서 τ를 비교한다.",
+      "τ=0.5는 더 뾰족하고 τ=2는 더 완만하다.",
+      "τ가 작아도 확률 샘플링은 완전한 argmax와 다를 수 있다."
+    ],
+    "focal": "τ→0⁺일 때 최대 점수에 확률 집중",
+    "note": "temperature=0을 나눗셈에 넣지 않는다. greedy는 별도 argmax 분기로 구현한다. ties가 있으면 극한의 설명에도 주의한다."
+  },
+  {
+    "n": 35,
+    "title": "부록 · baseline의 가치",
+    "section": "부록",
+    "time": "수업 외 심화",
+    "bullets": [
+      "bigram은 장거리 정보를 볼 수 없다.",
+      "구현이 단순해 데이터·loss 오류를 찾기 쉽다.",
+      "복잡한 모델이 이기지 못하면 설정과 예산을 점검한다."
+    ],
+    "focal": "baseline은 비교 기준이자 디버깅 도구다",
+    "note": "짧은 코퍼스에서 bigram도 일부 철자 패턴을 학습한다. 더 복잡한 모델이 제한된 시간 안에 항상 이기는 것은 아니다."
+  },
+  {
+    "n": 36,
+    "title": "시각 보충 · 미래를 가리는 삼각형",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "0",
+    "note": "0-based index에서 세 번째 행을 가리킨다. 대각선을 차단하지 않는다. 첫 행도 자기 자신을 볼 수 있어 all-masked softmax NaN을 피한다."
+  },
+  {
+    "n": 37,
+    "title": "시각 보충 · head 분할과 결합",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "1",
+    "note": "4개 head로 나누어도 최종 D는 64다. 실제 Q,K,V는 각각 [B,4,T,16]으로 계산한다. 이 도식은 head별 결과 결합을 보여 준다."
+  },
+  {
+    "n": 38,
+    "title": "시각 보충 · next-token shift",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "2",
+    "note": "입력 길이 T에 대해 원본 토큰 T+1개가 필요하다. 다음 토큰 정답은 입력의 바로 다음 열이므로 causal mask가 없으면 정답을 볼 수 있다."
+  },
+  {
+    "n": 39,
+    "title": "시각 보충 · temperature와 확률",
+    "section": "시각 보충",
+    "time": "수업 외 복습 · 해당 개념 설명 시 함께 활용 가능",
+    "bullets": [],
+    "focal": "3",
+    "note": "실제 학습 모델의 결과가 아닌 설명용 logits의 정확한 softmax 계산이다. 온도를 높이면 분포가 완만해진다. τ=0은 허용하지 않는다."
+  },
+  {
+    "n": 40,
+    "title": "읽을거리와 출처",
+    "section": "참고",
+    "time": "",
+    "bullets": [
+      "Attention Is All You Need · Vaswani et al.",
+      "Scaled Dot Product Attention · 공식 API",
+      "CrossEntropyLoss · 공식 API"
+    ],
+    "focal": "원문 링크는 발표자 노트와 주차별 README에 수록",
+    "note": "Attention Is All You Need · Vaswani et al.\nhttps://arxiv.org/abs/1706.03762\nScaled Dot Product Attention · 공식 API\nhttps://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html\nCrossEntropyLoss · 공식 API\nhttps://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html\n\n슬라이드 문장·도식과 실습 코드는 이 수업을 위해 새로 작성했다. 원문 그림을 복제하지 않았다."
+  }
+]
