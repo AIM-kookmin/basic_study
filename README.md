@@ -5,8 +5,11 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 
 ## 먼저 열 파일
 
+**CNN 개정판 (2026-09-15):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
+각 28페이지, 주차별 90분입니다. 인간의 시각과 분류에서 출발해 CNN의 구조·학습·일반화를 도식과 토론으로 설명합니다. CNN 코딩 노트북은 수업 외 선택 실습으로 연결합니다.
+
 1. 리더는 [리더 운영 안내](리더_운영안내.md)와 [환경설정](환경설정.md)을 확인합니다.
-2. 해당 주차의 `lecture.pptx`로 발표합니다. **발표자 노트에 설명·정답·오개념 교정**이 들어 있습니다.
+2. CNN 1·2주차는 개념 웹북 또는 새 `lecture.pdf`로 발표합니다. 해설은 [웹북의 리더 가이드](cnn_concept_web/README.md)를 사용합니다. 3–6주차는 `lecture.pptx`와 발표자 노트를 사용합니다.
 3. 참가자는 `practice.ipynb`를 Colab에 업로드합니다. 독립 실행 파일이라 이전 주차의 실행 상태가 필요 없습니다.
 4. 자율 학습자는 `homework_optional.ipynb`를 사용합니다. `leader_solution.ipynb`는 참고 구현과 해설입니다.
 
@@ -14,19 +17,22 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 
 | 주차 | 강의·폴더 | 핵심 개념 | 실습 결과물 | 자율 과제 |
 |---|---|---|---|---|
-| 1 | [CNN ①](week01_cnn_basics/README.md) | 합성곱, 채널, shape, 수용 영역, CE | FashionMNIST MLP/CNN 비교, 오류·특징 맵 | shape·파라미터 구현, 폭 비교, 이동 강건성 |
-| 2 | [CNN ②](week02_cnn_advanced/README.md) | 증강, BN, residual, 공정한 평가 | CIFAR10 base/augment 비교, confusion matrix | shortcut, recall, residual 비교·통제 설계 |
+| 1 | [CNN ①](week01_cnn_basics/README.md) | 인간의 분류, 국소성·공유·계층, 특징과 학습 | 종이 합성곱, 이동·반전 예측 | FashionMNIST MLP/CNN, 특징 맵, 이동 강건성 |
+| 2 | [CNN ②](week02_cnn_advanced/README.md) | 형태·질감, 지름길, 증강, 잔차 연결, 일반화 | 사진 40장의 수집·분할·평가 설계 | CIFAR10 증강·residual 비교, 오류 분석 |
 | 3 | [Attention ①](week03_attention_basics/README.md) | Q/K/V, scaling, mask, next-token | 손계산 heatmap, bigram/attention LM, 생성 | attention 구현, shift, 누출 탐지, 문맥 실험 |
 | 4 | [Attention ②](week04_transformer_lm/README.md) | MHA, pre-norm, FFN, sampling | TinyTransformer, top-k 생성, checkpoint 복원 | top-k, block, head 비교, top-p |
 | 5 | [VAE ①](week05_vae_basics/README.md) | posterior, prior, 재매개화, ELBO | MNIST VAE, 재구성·prior 샘플·보간 | 재매개화, loss, latent 차원, AE 비교 |
 | 6 | [VAE ②](week06_vae_advanced/README.md) | β, collapse 진단, CVAE | β 3조건 비교, traversal, 조건부 생성 | warm-up, 조건 격자, 스케줄 비교, 차원 진단 |
 
-**분량:** PPT 6개 × 40장 = **240장**, 실습 6개, 자율 과제 6개, 리더 해설 노트북 6개.
+**개정 CNN 분량:** 웹북·PDF 총 56페이지, 주차별 리더 가이드, 코딩 없는 활동 2개와 웹 관찰 도구 2개.
+기존 PPT 6개 × 40장 = **240장**, 실습 6개, 자율 과제 6개, 리더 해설 노트북 6개도 보관합니다. CNN PPT는 이전 코드 중심 판본이며 새 PDF와 내용·페이지가 다릅니다.
 각 PPT에는 90분 핵심 28장과 심화·시각 보충·참고 12장이 있습니다. 40장을 모두 강의식으로 읽는 방식보다
 핵심 28장으로 수업하고 부록은 질문 대응과 자율 복습에 사용하는 구성을 권합니다.
 강의 PDF 6개도 함께 제공하여 PowerPoint 없이 읽을 수 있습니다.
 
-## 매주 90분 진행표
+## 3–6주차 및 기존 PPT의 90분 진행표
+
+CNN 개정 수업은 각 PDF 2페이지의 별도 90분 진행표를 사용합니다. 아래 표의 코딩 실습 시간을 추가로 합치지 않습니다.
 
 | 시간 | PPT | 활동 | 참가자 산출물 |
 |---|---|---|---|
@@ -45,7 +51,7 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 ## 파일 사용과 결과 보관
 
 - `.pptx`: 편집 가능한 텍스트·도식, 발표자 노트 포함.
-- `.pdf`: 강의 열람·인쇄용. 발표자 노트는 주차별 `leader_guide.md`에서 읽습니다.
+- `.pdf`: 강의 열람·인쇄용. CNN 해설은 `cnn_concept_web/CNN_1주차_리더가이드.md`와 `CNN_2주차_리더가이드.md`, 나머지 주차는 `leader_guide.md`에서 읽습니다.
 - `practice.ipynb`: 설명, 완성 코드, 수치 검사, 관찰 질문, 실험 기록표.
 - `homework_optional.ipynb`: 준비 코드, TODO 4문제, 검사 셀, 실험·해석 틀. 미완성 셀은 안내 후 넘어갑니다.
 - `leader_solution.ipynb`: 실제 실행 가능한 참고 구현. 성능 숫자는 정답이 아닙니다.
@@ -63,4 +69,4 @@ FashionMNIST·CIFAR10·MNIST는 torchvision의 공식 Dataset 클래스로 다�
 영문 문자 코퍼스는 외부 저작물 대신 이 수업을 위해 만든 조합 문장이며 문장 단위로 train/val/test를 분리합니다.
 원문 논문·PyTorch 공식 문서는 각 주차의 README와 PPT 노트에 연결했습니다. 설명과 코드·도식은 새로 작성했습니다.
 
-기존 `D:\AIM\pytorch_2026_1` 자료를 덮어쓰지 않고, 이번 요청의 저장 위치인 `D:\AIM\활동\_2026\_2`에 독립적으로 구성했습니다.
+자료의 현재 저장 위치는 `D:\AIM\활동_2026_2`입니다. CNN 웹북 수정·PDF 재생성 방법은 [웹북 안내](cnn_concept_web/README.md)에 있습니다.

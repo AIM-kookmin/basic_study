@@ -24,6 +24,8 @@ events.out.tfevents.*
 # Regenerable validation previews and student distribution archive
 /_검증/
 /AIM_*_수강생배포.zip
+/cnn_concept_web/_preview/
+/cnn_concept_web/CNN_개념강의_웹북.zip
 
 # Local environment settings; keep shareable examples
 .env

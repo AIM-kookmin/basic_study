@@ -21,7 +21,10 @@ try:
                     except Exception: pass
             if s.SlideIndex in [1,3,7,10,15,20,24,29,35,36,37,38,39]:
                 s.Export(str(output/f'slide_{s.SlideIndex:02d}.png'),'PNG',1600,900)
-        pres.SaveAs(str(path.with_suffix('.pdf')),32)
+        # The revised CNN PDFs are produced by cnn_concept_web/src/render_and_check.py.
+        revised_cnn = path.parent.name in ('week01_cnn_basics', 'week02_cnn_advanced') and (ROOT/'cnn_concept_web/index.html').exists()
+        pdf_path = path.with_name('lecture_legacy.pdf') if revised_cnn else path.with_suffix('.pdf')
+        pres.SaveAs(str(pdf_path),32)
         results.append(dict(week=path.parent.name,slides=pres.Slides.Count,overflow=overflow,pdf=True))
         pres.Close()
         (report/'slides.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')
