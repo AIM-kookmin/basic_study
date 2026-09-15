@@ -6,11 +6,14 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 ## 먼저 열 파일
 
 **CNN 개정판 (2026-09-15):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
-각 28페이지, 주차별 90분입니다. 인간의 시각과 분류에서 출발해 CNN의 구조·학습·일반화를 도식과 토론으로 설명합니다. CNN 코딩 노트북은 수업 외 선택 실습으로 연결합니다.
+각 28페이지, 주차별 90분입니다. 인간의 시각과 분류에서 출발해 CNN의 구조·학습·일반화를 도식과 토론으로 설명합니다.
+
+**개념 연계 실습:** [1주차 노트북](week01_cnn_basics/concept_practice.ipynb) · [2주차 노트북](week02_cnn_advanced/concept_practice.ipynb).
+필터·특징 맵·학습과 배경 지름길을 직접 관찰합니다. 외부 데이터 다운로드 없이 CPU로 실행하며, 핵심 15분은 기존 종이 활동을 대체할 수 있습니다. 학습·자율 실험 확장은 별도 시간에 진행합니다.
 
 1. 리더는 [리더 운영 안내](리더_운영안내.md)와 [환경설정](환경설정.md)을 확인합니다.
 2. CNN 1·2주차는 개념 웹북 또는 새 `lecture.pdf`로 발표합니다. 해설은 [웹북의 리더 가이드](cnn_concept_web/README.md)를 사용합니다. 3–6주차는 `lecture.pptx`와 발표자 노트를 사용합니다.
-3. 참가자는 `practice.ipynb`를 Colab에 업로드합니다. 독립 실행 파일이라 이전 주차의 실행 상태가 필요 없습니다.
+3. CNN 개념 수업에서는 `concept_practice.ipynb`, 실제 이미지 확장 및 3–6주차에서는 `practice.ipynb`를 Colab에 업로드합니다. 모든 파일은 독립 실행합니다.
 4. 자율 학습자는 `homework_optional.ipynb`를 사용합니다. `leader_solution.ipynb`는 참고 구현과 해설입니다.
 
 ## 전체 구성

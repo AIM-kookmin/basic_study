@@ -9,6 +9,7 @@
 - [2주차 PDF · 28페이지](CNN_2주차_개념강의.pdf)
 - [통합 PDF · 56페이지](CNN_개념강의_통합.pdf)
 - [1주차 리더 가이드](CNN_1주차_리더가이드.md) · [2주차 리더 가이드](CNN_2주차_리더가이드.md)
+- [1주차 개념 실습](../week01_cnn_basics/concept_practice.ipynb) · [2주차 개념 실습](../week02_cnn_advanced/concept_practice.ipynb) · [실습 검증 보고서](실습_검증_보고서.md)
 
 PDF는 웹의 인쇄 전용 레이아웃을 Chromium으로 렌더링한 **A4 가로형**입니다. 텍스트는 검색·선택 가능하며 그림은 SVG 벡터로 제작했습니다. 원문 링크도 PDF에서 클릭할 수 있습니다.
 기존 `week01_cnn_basics/lecture.pdf`, `week02_cnn_advanced/lecture.pdf`에도 이 개정판을 반영합니다.
@@ -33,6 +34,8 @@ PDF는 웹의 인쇄 전용 레이아웃을 Chromium으로 렌더링한 **A4 가
 - 2주차 활동: 사진 40장이라는 제한에서 컵/병 분류기의 수집·분할·평가 설계. 총 15분.
 - 본문 중 질문을 짝 토론에 활용하고, 마지막 출구 질문으로 개념을 확인합니다.
 - 기존 `practice.ipynb`·자율 과제는 **별도 선택 실습**으로 연결합니다. 90분에 기존 코드 실습까지 모두 추가하도록 요구하지 않습니다.
+- 새 `concept_practice.ipynb`는 개념 연계 실습입니다. 1주차 핵심 0–3절, 2주차 핵심 3–5절을 각 15분의 종이 활동 대신 사용할 수 있습니다. 2주차 모델 준비(0–2절)는 미리 실행합니다. 전체 노트북의 학습·확장은 별도 시간을 배정합니다.
+- 두 파일은 내부 합성 데이터로 독립 실행하며 GPU·다운로드가 필요 없습니다. 실행 결과·예상 질문·변경할 값·자율 실험·관찰 기록 JSON 저장을 포함합니다.
 
 ## 웹 조작
 
@@ -60,6 +63,8 @@ Noto Sans KR은 Google Fonts 배포본을 사용했습니다. 폰트 라이선�
 - `src/build.py`: HTML과 리더 가이드 생성
 - `src/render_and_check.py`: PDF 렌더링, 페이지 수·레이아웃·모바일·위젯 검사
 - `src/publish.py`: 검증된 PDF를 주차 폴더에 반영하고 배포본 생성
+- `src/build_notebooks.py`: 개념 연계 실습 노트북 두 개 생성
+- `src/validate_notebooks.py`: 새 커널·빈 폴더에서 전체 실행, 결과 저장, 실습 검증 보고서 생성
 
 ```powershell
 python -m pip install playwright pymupdf pillow
@@ -68,5 +73,7 @@ python src/build.py
 python src/render_and_check.py
 python src/publish.py
 ```
+
+노트북 수정 후에는 `python -m pip install torch numpy matplotlib nbformat nbclient ipykernel`로 도구를 준비하고 `python src/build_notebooks.py`, `python src/validate_notebooks.py`, `python src/publish.py` 순서로 실행합니다. 생성 스크립트는 출력이 없는 노트북을 만들며, 검증 스크립트가 실제 실행 출력을 저장합니다. 웹북 ZIP에서는 노트북이 `notebooks/`에 포함됩니다.
 
 위 명령은 `cnn_concept_web` 폴더에서 실행합니다. `build.py`는 웹과 가이드를, 렌더 스크립트는 PDF를 다시 생성합니다. 완료 후 `_preview/validation.json`에 검증 결과가 남습니다. `_preview/`와 배포 ZIP은 Git에서 무시합니다.

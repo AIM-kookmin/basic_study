@@ -8,6 +8,19 @@
 - [페이지별 리더 해설과 활동 답안](../cnn_concept_web/CNN_1주차_리더가이드.md)
 - [전체 웹북 안내](../cnn_concept_web/README.md)
 
+## 개념 연계 실습 · 바로 실행
+
+[concept_practice.ipynb](concept_practice.ipynb) · [Colab에서 열기](https://colab.research.google.com/github/AIM-kookmin/basic_study/blob/main/week01_cnn_basics/concept_practice.ipynb)
+
+필터의 손계산 → 컵의 경계·ReLU·풀링 → 이동 관찰 → 작은 CNN 학습 → 학습 전후 특징 맵 → 가림 실험으로 진행합니다. 코드는 완성되어 있으며 변수와 관찰 기록을 직접 바꿉니다. 데이터는 내부에서 생성하므로 다운로드와 GPU가 필요 없습니다.
+
+- 수업 15분: 준비 셀과 1–3절. PDF 24–25쪽의 종이 활동 대신 실행합니다.
+- 확장 20–30분: 4–6절의 학습·특징 맵·오분류 분석.
+- 7절: 관찰 기록 JSON 저장과 자율 실험. 저장된 실행 결과도 함께 읽을 수 있습니다.
+- [실행 검증 보고서](../cnn_concept_web/실습_검증_보고서.md)
+
+## 개념 강의 흐름
+
 컵의 모양과 손잡이를 보고 범주를 알아보는 경험에서 시작합니다. 위치·크기·각도가 달라도 같은 사물을 알아보는 문제가 왜 어려운지 살펴본 뒤, 시각 연구에서 얻은 영감과 CNN의 설계 선택을 연결합니다.
 
 - 인간의 분류에 쓰이는 부분·관계·맥락을 설명한다.
