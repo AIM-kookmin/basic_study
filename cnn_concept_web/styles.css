@@ -17,5 +17,7 @@ dialog{border:1px solid var(--line);background:var(--paper);color:var(--ink);wid
 
 /* Cover typography stays distinct in print and aligns copy with the title. */
 .sheet.cover .copy{align-self:flex-start;max-width:420px}
+.mnist-figure{display:block;width:100%;height:auto;max-height:338px;object-fit:contain}
+@media screen and (max-width:700px){.mnist-figure{max-height:none}}
 @media print{.sheet.cover .page-head h2{font-size:67px;line-height:1.2;letter-spacing:-3.8px}.sheet.cover .copy{align-self:flex-start}}
 .sheet.statement{background:#096b62;color:var(--paper)}.statement .masthead{border-color:#f4f2e94d}.statement .kicker,.statement .masthead .chapter,.statement .copy b,.statement .takeaway span,.statement .footer,.statement .footer .folio,.statement .visual figcaption{color:#d2e5d3}.statement .lead{color:#d2e5d3}.statement .visual svg text{fill:var(--paper)}.statement .takeaway{border-color:#d2e5d3}.statement .page-head h2{font-size:41px}.statement .copy{font-size:17px}

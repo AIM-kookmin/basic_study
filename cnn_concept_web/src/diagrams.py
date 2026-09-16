@@ -47,6 +47,19 @@ def svg(body,title='',height=380):
     return f'<svg viewBox="0 0 560 {height}" role="img" aria-label="{escape(title)}" xmlns="http://www.w3.org/2000/svg"><title>{escape(title)}</title>{body}</svg>'
 
 def diagram(kind):
+    from mnist_diagrams import KINDS,render
+    if kind in KINDS:
+        return render(kind)
+    if kind.startswith('mnist-photo-'):
+        name=kind.removeprefix('mnist-photo-')
+        captions={'samples':'실제 MNIST test 표본 · 열은 정답 0–9, 각 열의 세 표본',
+          'pixels':'실제 MNIST test 표본 · 6×6 픽셀 밝기 확대',
+          'filters':'실제 입력에 수작업 필터를 적용한 계산 · 학습된 필터 아님',
+          'learning':'실측 학습 곡선 · train 6,000 / validation 1,000 · seed 17 · CPU',
+          'prediction':'실제 test 표본의 모델 출력 · 6epoch 최종 모델',
+          'errors':'실제 고정 test 오분류 앞 6장 · 전체를 대표하는 표본 아님',
+          'features':'실제 학습된 첫 합성곱 층의 ReLU 반응'}
+        return f'<img class="mnist-figure" src="assets/mnist_{name}.png" alt="{escape(captions[name])}">',captions[name]
     b=''; caption='수업용 개념도 · 실제 모델의 측정 결과가 아닙니다.'
     if kind.startswith('cover'):
         if kind=='cover-eye':

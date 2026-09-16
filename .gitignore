@@ -27,6 +27,9 @@ events.out.tfevents.*
 /cnn_concept_web/_preview/
 /cnn_concept_web/CNN_개념강의_웹북.zip
 
+# Local-only instructor scripts (including future notes and exports)
+/_리더전용_로컬/
+
 # Local environment settings; keep shareable examples
 .env
 .env.*

@@ -31,7 +31,7 @@ lines += ['', '## 확인 결과', '',
           '- PDF 텍스트 추출·페이지 수·링크 확인. 전체 페이지 축소 미리보기와 주요 페이지 확대 시각 검토.',
           '- 주차 폴더의 lecture.pdf에 개정판 복사. 배포 ZIP 무결성 검사.', '',
           '## 범위', '',
-          '웹 관찰 도구는 설명용 수치·도식을 조작합니다. CNN을 학습하거나 실제 연구 성능을 측정하지 않습니다. 기존 노트북은 수정·재실행하지 않았습니다.',
+          '웹 관찰 도구는 설명용 수치를 조작합니다. 1주차 MNIST 이미지·필터·학습·예측 그림은 별도로 실행한 실제 데이터와 모델 결과입니다. 개정 MNIST 노트북 검증은 MNIST_실습검증_보고서.md를 확인하세요.',
           '자동 검사는 제공된 Chromium 환경 기준이며 모든 브라우저·인쇄 드라이버를 검사한 것은 아닙니다.',
           '원시 검사 결과는 Git에서 제외하는 `_preview/validation.json`에 있습니다. 재검증은 `src/render_and_check.py`로 수행합니다.']
 (WEB / '검증_보고서.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
@@ -57,7 +57,7 @@ student = ROOT / 'AIM_2026_2_수강생배포.zip'
 with zipfile.ZipFile(student, 'w', zipfile.ZIP_DEFLATED) as archive:
     archive.writestr('README.md', '# AIM 2026 가을학기 수강생 자료\n\n6주 × 90분 과정입니다. CNN 1·2주차는 cnn_concept_web/index.html 또는 주차별 lecture.pdf로 공부합니다. 각각 28페이지 개념 강의이며 기존 CNN PPT는 이전 판본입니다. 3–6주차는 기존 PPT·PDF를 사용합니다.\n\nCNN 코딩 실습은 수업 외 선택 활동입니다. practice.ipynb를 Colab에 업로드하고 homework_optional.ipynb는 자율 과제로 사용하세요. 환경설정.md에 실행 방법이 있습니다.\n\n리더 해설은 별도 보관하며 이 수강생 ZIP에는 포함하지 않았습니다.\n')
     archive.write(ROOT / '환경설정.md', '환경설정.md')
-    archive.writestr('CNN_실습_안내.md', '# CNN 개념 연계 실습\n\n1·2주차 폴더의 concept_practice.ipynb를 Colab에서 열고 위부터 실행하세요. CPU·내부 합성 데이터로 동작하며 다운로드가 필요 없습니다.\n\n1주차: 필터·특징 맵·학습·가림. 2주차: 배경과 라벨의 상관·배경 교체·혼동 행렬·통제 실험.\n\n핵심 15분은 종이 활동을 대체할 수 있습니다. 2주차 0–2절의 모델 준비는 미리 실행하고, 전체 노트북의 확장 활동은 별도 시간을 배정하세요. 기존 practice.ipynb는 실제 이미지 확장 실습입니다.\n')
+    archive.writestr('CNN_실습_안내.md', '# CNN 개념 연계 실습\n\n1·2주차 폴더의 concept_practice.ipynb를 Colab에서 열고 위부터 실행하세요. CPU로 실행합니다. 1주차는 실제 MNIST 약11MB 최초 다운로드가 필요하며, 2주차는 내부 합성 데이터를 사용합니다.\n\n1주차: 과제 구분·사람의 단서·CNN 용어·실제 MNIST 분류. 2주차: 배경과 라벨의 상관·배경 교체·혼동 행렬·통제 실험.\n\n1주차 전체 실습은 별도45–50분이며 준비·학습 후6–7절을 짧게 시연할 수 있습니다. 2주차는 준비0–2절을 미리 실행하고 핵심3–5절15분을 진행합니다. 기존 practice.ipynb는 실제 이미지 확장 실습입니다.\n')
     for folder in sorted(ROOT.glob('week*')):
         if not folder.is_dir():
             continue

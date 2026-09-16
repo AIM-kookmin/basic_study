@@ -1,56 +1,42 @@
-# 1주차 — 본다는 것은, 분류한다는 것
+# 1주차 — 숫자 한 장에서, 분류의 원리까지
 
-2026-09-15 개념 중심 개정판. **28페이지 · 90분**, 코딩 없이 진행할 수 있습니다.
+2026-09-16 흐름 개정판. **28페이지 · 90분**입니다.
 
-## 개정 수업 자료와 목표
+## 먼저 열 자료
 
-- [개념 웹북](../cnn_concept_web/index.html?week=1) · [1주차 PDF](lecture.pdf)
-- [페이지별 리더 해설과 활동 답안](../cnn_concept_web/CNN_1주차_리더가이드.md)
-- [전체 웹북 안내](../cnn_concept_web/README.md)
+- [강의 PDF](lecture.pdf) · [웹 발표자료](../cnn_concept_web/index.html?week=1)
+- [페이지별 리더 가이드](../cnn_concept_web/CNN_1주차_리더가이드.md)
+- [MNIST 개념 실습](concept_practice.ipynb) · [Colab에서 열기](https://colab.research.google.com/github/AIM-kookmin/basic_study/blob/main/week01_cnn_basics/concept_practice.ipynb)
+- [MNIST 실행 검증](../cnn_concept_web/MNIST_실습검증_보고서.md)
 
-## 개념 연계 실습 · 바로 실행
+## 강의 흐름
 
-[concept_practice.ipynb](concept_practice.ipynb) · [Colab에서 열기](https://colab.research.google.com/github/AIM-kookmin/basic_study/blob/main/week01_cnn_basics/concept_practice.ipynb)
+| PDF | 시간 | 내용 |
+|---|---:|---|
+| 1–5쪽 | 15분 | 이미지 분류와 객체 인식의 용어, 검출·분할의 출력 차이 |
+| 6–8쪽 | 15분 | 사람의 획·부분 관계·경험·맥락에 의한 분류 |
+| 9–18쪽 | 30분 | 비유와 연산으로 익히는 픽셀·필터·특징 맵·채널·공유·수용 영역·학습 |
+| 19–27쪽 | 25분 | 실제 MNIST 이미지·픽셀·분할·필터·CNN·학습·예측·오분류 |
+| 28쪽 | 5분 | 출구 질문과 출처 |
 
-필터의 손계산 → 컵의 경계·ReLU·풀링 → 이동 관찰 → 작은 CNN 학습 → 학습 전후 특징 맵 → 가림 실험으로 진행합니다. 코드는 완성되어 있으며 변수와 관찰 기록을 직접 바꿉니다. 데이터는 내부에서 생성하므로 다운로드와 GPU가 필요 없습니다.
+객체 인식은 넓은 표현이므로 이미지 분류와 객체 검출을 구체적으로 구분합니다. 사람의 비유 뒤에는 실제 곱셈·합·배열·연결을 설명합니다.
+웹12쪽은 필터 관찰 도구, PDF27쪽은 실제 오분류를 해석하는 5분 활동입니다.
 
-- 수업 15분: 준비 셀과 1–3절. PDF 24–25쪽의 종이 활동 대신 실행합니다.
-- 확장 20–30분: 4–6절의 학습·특징 맵·오분류 분석.
-- 7절: 관찰 기록 JSON 저장과 자율 실험. 저장된 실행 결과도 함께 읽을 수 있습니다.
-- [실행 검증 보고서](../cnn_concept_web/실습_검증_보고서.md)
+## MNIST 실습
 
-## 개념 강의 흐름
+실제 손글씨 관찰 → 픽셀·라벨 → 필터 계산 → CNN의 크기 변화 → 학습·예측·오분류 → 특징 맵·이동 실험으로 진행합니다.
+CPU로 실행하며 첫 실행에는 약11MB MNIST 다운로드와 인터넷 연결이 필요합니다. 이후 캐시를 검증해 재사용합니다. 다른 Python 파일이나 이전 주차의 실행 상태는 필요 없습니다.
 
-컵의 모양과 손잡이를 보고 범주를 알아보는 경험에서 시작합니다. 위치·크기·각도가 달라도 같은 사물을 알아보는 문제가 왜 어려운지 살펴본 뒤, 시각 연구에서 얻은 영감과 CNN의 설계 선택을 연결합니다.
+전체 실습은 별도45–50분입니다. PDF 수업에서는 실제 실행 결과 그림을 읽습니다. 짧은 Colab 시연은 준비·학습을 미리 실행한 후6–7절의 예측·오류를 읽는 방식으로 진행합니다.
+9절에서 관찰 기록을 `outputs/week01_mnist/observations.json`으로 저장합니다.
 
-- 인간의 분류에 쓰이는 부분·관계·맥락을 설명한다.
-- 국소성, 가중치 공유, 특징의 계층이 필요한 이유를 설명한다.
-- 합성곱·채널·비선형성·풀링을 그림과 작은 수치 예제로 이해한다.
-- 분류 점수, 손실, 역전파가 학습 과정에서 맡는 역할을 구분한다.
-- CNN의 생물학적 영감과 인간 시각을 그대로 복제하지 못하는 한계를 구분한다.
+발표의 실측값은 seed17·6epoch·학습6,000/검증1,000/test1,000 기준입니다. 공식 test10,000장 전체 성능이나 여러 seed 통계가 아닙니다.
 
-PDF 2페이지의 90분 진행표를 따릅니다. 24–25페이지에는 종이 합성곱 활동과 해설(15분)이 있고, 웹 14페이지에는 필터를 움직이는 관찰 도구가 있습니다.
+## 이전 판본의 선택 확장
 
-아래는 **선택 코딩 실습 및 이전 PPT 판본** 안내입니다. `lecture.pptx`와 `leader_guide.md`는 새 PDF의 페이지와 대응하지 않습니다. 개념 강의 출처는 새 PDF 마지막 페이지에 있습니다.
+- `practice.ipynb`: FashionMNIST MLP/CNN 비교·특징 맵·오분류
+- `homework_optional.ipynb`: shape·파라미터·폭·이동 강건성 자율 과제
+- `leader_solution.ipynb`: 위 과제의 참고 구현
+- `lecture.pptx`, `leader_guide.md`: 이전 코드 중심 판본. 현재 PDF와 페이지가 대응하지 않습니다.
 
-## 선택 코딩 실습 목표
-- 합성곱의 출력 크기와 파라미터 수를 계산한다.
-- FashionMNIST 분류기를 구현하고 학습을 진단한다.
-- 특징 맵과 오분류를 근거로 모델의 한계를 설명한다.
-
-## 준비와 운영
-Python, 텐서, nn.Module, 역전파 기초를 전제로 한다. FashionMNIST 다운로드를 수업 전에 완료한다. 실습 기본값은 일부 학습 데이터와 짧은 학습이며 목표는 최고 정확도보다 올바른 파이프라인이다.
-
-개념 수업 후 별도로 진행하는 선택 실습입니다. 실습 노트북은 위에서 아래로 실행하며, 과제는 자율입니다.
-
-## 파일
-- `lecture.pptx`: 발표자 노트 포함 강의안
-- `practice.ipynb`: 설명·실행 코드·관찰 질문이 있는 독립 실행 실습
-- `homework_optional.ipynb`: 독립 실행 준비 코드 + 단계별 자율 과제
-- `leader_solution.ipynb`: 리더용 과제 해설 및 실행 가능한 참고 구현
-- `leader_guide.md`: 슬라이드별 설명과 질문 답안
-
-## 참고 문헌
-- [PyTorch · 이미지 분류 튜토리얼](https://docs.pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html)
-- [Conv2d · 공식 API](https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html)
-- [Deep Residual Learning · He et al.](https://arxiv.org/abs/1512.03385)
+출처는 개정 PDF28쪽에 있습니다. 대본은 리더 개인용 Git 제외 폴더에서 별도 보관합니다.

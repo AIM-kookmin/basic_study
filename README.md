@@ -5,11 +5,11 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 
 ## 먼저 열 파일
 
-**CNN 개정판 (2026-09-15):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
+**CNN 개정판 (1주차 2026-09-16):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
 각 28페이지, 주차별 90분입니다. 인간의 시각과 분류에서 출발해 CNN의 구조·학습·일반화를 도식과 토론으로 설명합니다.
 
 **개념 연계 실습:** [1주차 노트북](week01_cnn_basics/concept_practice.ipynb) · [2주차 노트북](week02_cnn_advanced/concept_practice.ipynb).
-필터·특징 맵·학습과 배경 지름길을 직접 관찰합니다. 외부 데이터 다운로드 없이 CPU로 실행하며, 핵심 15분은 기존 종이 활동을 대체할 수 있습니다. 학습·자율 실험 확장은 별도 시간에 진행합니다.
+1주차는 과제 구분 → 사람의 분류 → CNN 기초 용어 → 실제 MNIST로 진행합니다. 개정 실습은 MNIST를 처음 약11MB 다운로드해 CPU로 실행합니다. 2주차는 내부 합성 데이터의 배경 지름길을 관찰합니다. 전체 코딩 실습은 별도 시간을 배정하며, 각 주차 README에서 짧은 시연 구간을 확인하세요.
 
 1. 리더는 [리더 운영 안내](리더_운영안내.md)와 [환경설정](환경설정.md)을 확인합니다.
 2. CNN 1·2주차는 개념 웹북 또는 새 `lecture.pdf`로 발표합니다. 해설은 [웹북의 리더 가이드](cnn_concept_web/README.md)를 사용합니다. 3–6주차는 `lecture.pptx`와 발표자 노트를 사용합니다.
@@ -20,7 +20,7 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 
 | 주차 | 강의·폴더 | 핵심 개념 | 실습 결과물 | 자율 과제 |
 |---|---|---|---|---|
-| 1 | [CNN ①](week01_cnn_basics/README.md) | 인간의 분류, 국소성·공유·계층, 특징과 학습 | 종이 합성곱, 이동·반전 예측 | FashionMNIST MLP/CNN, 특징 맵, 이동 강건성 |
+| 1 | [CNN ①](week01_cnn_basics/README.md) | 분류·인식·검출 구분, 사람의 단서, CNN 용어 | 실제 MNIST 입력·학습·예측·오분류 | FashionMNIST MLP/CNN, 특징 맵, 이동 강건성 |
 | 2 | [CNN ②](week02_cnn_advanced/README.md) | 형태·질감, 지름길, 증강, 잔차 연결, 일반화 | 사진 40장의 수집·분할·평가 설계 | CIFAR10 증강·residual 비교, 오류 분석 |
 | 3 | [Attention ①](week03_attention_basics/README.md) | Q/K/V, scaling, mask, next-token | 손계산 heatmap, bigram/attention LM, 생성 | attention 구현, shift, 누출 탐지, 문맥 실험 |
 | 4 | [Attention ②](week04_transformer_lm/README.md) | MHA, pre-norm, FFN, sampling | TinyTransformer, top-k 생성, checkpoint 복원 | top-k, block, head 비교, top-p |
