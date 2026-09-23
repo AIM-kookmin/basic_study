@@ -214,521 +214,287 @@
   {
     "week": 2,
     "page": 1,
-    "title": "CNN을 안다는 것에서, 논문을 읽는 것으로.",
+    "title": "AlexNet (2012)",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 1,
+    "minutes": 2,
     "phase": 0,
     "paper_page": 1,
-    "locator": "paper overview"
+    "locator": "논문 제목 · pp. 1–8"
   },
   {
     "week": 2,
     "page": 2,
-    "title": "오늘의 읽기 순서가, 발표의 순서다.",
+    "title": "이미지 분류의 입력과 출력",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 0,
-    "paper_page": 1,
-    "locator": "reading plan"
+    "minutes": 3,
+    "phase": 1,
+    "paper_page": 2,
+    "locator": "복습 · §§2, 3.5"
   },
   {
     "week": 2,
     "page": 3,
-    "title": "읽으면서 세 종류의 메모를 남긴다.",
+    "title": "합성곱: 같은 필터를 여러 위치에 적용",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 0,
+    "minutes": 3,
+    "phase": 1,
     "paper_page": 1,
-    "locator": "reader-created method"
+    "locator": "복습 · §1, §3.5"
   },
   {
     "week": 2,
     "page": 4,
-    "title": "제목에서 약속을 찾고, 목차에서 경로를 찾는다.",
+    "title": "채널과 깊이: 여러 반응을 조합",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
     "minutes": 3,
-    "phase": 0,
-    "paper_page": 1,
-    "locator": "title / section map"
+    "phase": 1,
+    "paper_page": 4,
+    "locator": "복습 · §§1, 3.5"
   },
   {
     "week": 2,
     "page": 5,
-    "title": "초록은 번역문보다, 질문의 지도다.",
+    "title": "ReLU와 pooling의 역할",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
     "minutes": 3,
     "phase": 1,
-    "paper_page": 1,
-    "locator": "Abstract"
+    "paper_page": 4,
+    "locator": "복습 · §§3.1, 3.4"
   },
   {
     "week": 2,
     "page": 6,
-    "title": "Introduction: 쉬운 데이터의 성공이 끝은 아니다.",
+    "title": "분류와 학습: 정답 확률을 높이는 과정",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
     "minutes": 3,
     "phase": 1,
-    "paper_page": 1,
-    "locator": "§1 Introduction"
+    "paper_page": 4,
+    "locator": "복습 · §§3.5, 5"
   },
   {
     "week": 2,
     "page": 7,
-    "title": "필요한 것은 하나가 아니라, 함께 맞는 조건들.",
+    "title": "일반화: 처음 보는 이미지에서도 맞히기",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
+    "minutes": 3,
     "phase": 1,
     "paper_page": 2,
-    "locator": "§1, pp.1–2"
+    "locator": "복습 · §§2, 4, 5"
   },
   {
     "week": 2,
     "page": 8,
-    "title": "기여를, 문제와 해결책의 짝으로 바꾼다.",
+    "title": "Abstract · Introduction",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 1,
-    "paper_page": 2,
-    "locator": "§1, §§3–6"
+    "minutes": 6,
+    "phase": 2,
+    "paper_page": 1,
+    "locator": "Abstract · §1 · pp. 1–2"
   },
   {
     "week": 2,
     "page": 9,
-    "title": "잠깐 멈춤: 아직 구조도는 보지 않는다.",
+    "title": "The Dataset · 문제 정의",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 1,
+    "minutes": 5,
+    "phase": 2,
     "paper_page": 2,
-    "locator": "Abstract / §1"
+    "locator": "§2 · §3.5 · pp. 2, 4–5"
   },
   {
     "week": 2,
     "page": 10,
-    "title": "Problem statement라는 제목이 없어도 읽을 수 있다.",
+    "title": "The Architecture",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 2,
-    "paper_page": 2,
-    "locator": "§§1, 2, 3.5, 5"
+    "minutes": 6,
+    "phase": 3,
+    "paper_page": 5,
+    "locator": "§§3.2, 3.5 · Figure 2 · p. 5"
   },
   {
     "week": 2,
     "page": 11,
-    "title": "데이터셋 이름 뒤에 숨은 조건을 펼친다.",
+    "title": "첫 합성곱 층은 무엇을 학습했나",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 3,
-    "phase": 2,
-    "paper_page": 2,
-    "locator": "§2 / §6"
+    "minutes": 4,
+    "phase": 3,
+    "paper_page": 6,
+    "locator": "§6.1 · Figure 3 · p. 6"
   },
   {
     "week": 2,
     "page": 12,
-    "title": "Top-1과 Top-5: 질문이 달라지면 오류도 달라진다.",
+    "title": "ReLU: 학습 속도의 근거",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 2,
-    "paper_page": 2,
-    "locator": "§2 metrics"
+    "minutes": 5,
+    "phase": 3,
+    "paper_page": 3,
+    "locator": "§3.1 · Figure 1 · p. 3"
   },
   {
     "week": 2,
     "page": 13,
-    "title": "우리 말로 다시 쓴, 이 연구의 문제.",
+    "title": "LRN과 overlapping pooling",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 3,
-    "phase": 2,
-    "paper_page": 2,
-    "locator": "§§1–2, reader synthesis"
+    "minutes": 5,
+    "phase": 3,
+    "paper_page": 4,
+    "locator": "§§3.3–3.5 · p. 4"
   },
   {
     "week": 2,
     "page": 14,
-    "title": "핵심 theory를, 설계 원리로 먼저 읽는다.",
+    "title": "Reducing Overfitting",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 3,
+    "minutes": 4,
     "phase": 3,
-    "paper_page": 2,
-    "locator": "§1 / §3"
+    "paper_page": 5,
+    "locator": "§4 · pp. 5–6"
   },
   {
     "week": 2,
     "page": 15,
-    "title": "필터는 “이 근처에 이런 패턴이 있는가?”라는 질문.",
+    "title": "Details of Learning",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
+    "minutes": 4,
     "phase": 3,
-    "paper_page": 4,
-    "locator": "§3.5; teaching example"
+    "paper_page": 6,
+    "locator": "§5 · p. 6"
   },
   {
     "week": 2,
     "page": 16,
-    "title": "RGB 세 장을 따로 분류하는 것이 아니다.",
+    "title": "ILSVRC-2010: 이전 방법과의 비교",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 3,
-    "phase": 3,
-    "paper_page": 6,
-    "locator": "§3.5 / Figure 3 / §6.1"
+    "minutes": 4,
+    "phase": 4,
+    "paper_page": 7,
+    "locator": "§6 · Table 1 · p. 7"
   },
   {
     "week": 2,
     "page": 17,
-    "title": "가중치 공유는, 같은 질문을 재사용하는 약속.",
+    "title": "ILSVRC-2012: 단일 모델과 앙상블",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 3,
-    "paper_page": 1,
-    "locator": "§1; teaching calculation"
+    "minutes": 5,
+    "phase": 4,
+    "paper_page": 7,
+    "locator": "§6 · Table 2 · p. 7"
   },
   {
     "week": 2,
     "page": 18,
-    "title": "깊이는 “새 필터를 더한다”보다 많은 일을 한다.",
+    "title": "각 구성 요소는 얼마나 기여했나",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 3,
+    "minutes": 4,
+    "phase": 4,
     "paper_page": 4,
-    "locator": "§3.5 / §7; teaching diagram"
+    "locator": "§§3.2–3.4, 7 · pp. 3–4, 8"
   },
   {
     "week": 2,
     "page": 19,
-    "title": "Figure 2는, 읽는 순서를 정하면 덜 복잡하다.",
+    "title": "예측 사례: 무엇을 맞히고 틀렸나",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 3,
-    "phase": 3,
-    "paper_page": 5,
-    "locator": "§3.5 / Figure 2"
+    "minutes": 4,
+    "phase": 4,
+    "paper_page": 8,
+    "locator": "§6.1 · Figure 4 왼쪽 · p. 8"
   },
   {
     "week": 2,
     "page": 20,
-    "title": "같은 구조를, 역할 중심으로 다시 그린다.",
+    "title": "은닉 표현: 어떤 이미지가 가까운가",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 3,
-    "paper_page": 5,
-    "locator": "§3.5 / Figure 2"
+    "minutes": 4,
+    "phase": 4,
+    "paper_page": 8,
+    "locator": "§6.1 · Figure 4 오른쪽 · p. 8"
   },
   {
     "week": 2,
     "page": 21,
-    "title": "ReLU: 신호를 바꾸는 작은 규칙의 큰 차이.",
+    "title": "Discussion",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 3,
-    "phase": 3,
-    "paper_page": 3,
-    "locator": "§3.1 / Figure 1"
+    "minutes": 5,
+    "phase": 5,
+    "paper_page": 8,
+    "locator": "§7 · p. 8"
   },
   {
     "week": 2,
     "page": 22,
-    "title": "Pooling: 주변의 강한 반응을 남긴다.",
+    "title": "읽은 뒤 남길 네 가지",
     "layout": "paper",
     "sources": [
       "ALEXNET"
     ],
-    "minutes": 2,
-    "phase": 3,
-    "paper_page": 4,
-    "locator": "§3.4"
-  },
-  {
-    "week": 2,
-    "page": 23,
-    "title": "LRN: 같은 위치의 다른 채널을 함께 본다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 3,
-    "paper_page": 4,
-    "locator": "§3.3"
-  },
-  {
-    "week": 2,
-    "page": 24,
-    "title": "증강: 라벨을 보존하는 변화부터 생각한다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 3,
-    "paper_page": 5,
-    "locator": "§4.1"
-  },
-  {
-    "week": 2,
-    "page": 25,
-    "title": "Dropout: 특정 조합에만 기대지 않도록.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 3,
-    "paper_page": 6,
-    "locator": "§4.2"
-  },
-  {
-    "week": 2,
-    "page": 26,
-    "title": "수식 ①: 필터와 특징 맵에 기호를 붙인다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 3,
-    "phase": 4,
-    "paper_page": 4,
-    "locator": "§3.5; teaching notation"
-  },
-  {
-    "week": 2,
-    "page": 27,
-    "title": "수식 ②: 정답 확률을 높인다는 말의 의미.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 4,
-    "paper_page": 4,
-    "locator": "§3.5 objective; teaching notation"
-  },
-  {
-    "week": 2,
-    "page": 28,
-    "title": "수식 ③: LRN의 긴 첨자를, 질문으로 분해한다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 4,
-    "paper_page": 4,
-    "locator": "§3.3 equation"
-  },
-  {
-    "week": 2,
-    "page": 29,
-    "title": "Figure 1: 축을 읽기 전에 결론을 읽지 않는다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
+    "minutes": 5,
     "phase": 5,
-    "paper_page": 3,
-    "locator": "§3.1 / Figure 1"
-  },
-  {
-    "week": 2,
-    "page": 30,
-    "title": "Table 1: 비교는 같은 열에서 시작한다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 5,
-    "paper_page": 7,
-    "locator": "§6 / Table 1"
-  },
-  {
-    "week": 2,
-    "page": 31,
-    "title": "Table 2: 15.3%의 주어를 정확히 읽는다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 3,
-    "phase": 5,
-    "paper_page": 7,
-    "locator": "§6 / Table 2"
-  },
-  {
-    "week": 2,
-    "page": 32,
-    "title": "짧은 활동: 표에 없는 결론을 찾아낸다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 5,
-    "paper_page": 7,
-    "locator": "§6 / Table 2"
-  },
-  {
-    "week": 2,
-    "page": 33,
-    "title": "구성 요소 비교: 좋아졌다는 말 뒤의 통제를 본다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 5,
-    "paper_page": 3,
-    "locator": "§§3.1–3.4 / §7"
-  },
-  {
-    "week": 2,
-    "page": 34,
-    "title": "Figure 4 왼쪽: 숫자 뒤에 어떤 실패가 있는가?",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 5,
-    "paper_page": 8,
-    "locator": "§6.1 / Figure 4 left"
-  },
-  {
-    "week": 2,
-    "page": 35,
-    "title": "Figure 4 오른쪽: 모델은 무엇을 비슷하다고 보나?",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 5,
-    "paper_page": 8,
-    "locator": "§6.1 / Figure 4 right"
-  },
-  {
-    "week": 2,
-    "page": 36,
-    "title": "결론은, 처음의 질문으로 돌아가 읽는다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 3,
-    "phase": 6,
-    "paper_page": 8,
-    "locator": "§7 Discussion"
-  },
-  {
-    "week": 2,
-    "page": 37,
-    "title": "마지막 한 페이지는, 저자의 요약이 아닌 나의 정리.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 1,
-    "phase": 7,
-    "paper_page": 8,
-    "locator": "reader-created worksheet"
-  },
-  {
-    "week": 2,
-    "page": 38,
-    "title": "3분, AlexNet을 내 언어로 적어 본다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 3,
-    "phase": 7,
-    "paper_page": 8,
-    "locator": "reader-created worksheet"
-  },
-  {
-    "week": 2,
-    "page": 39,
-    "title": "좋은 정리의 예: 확신과 질문을 함께 남긴다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 2,
-    "phase": 7,
-    "paper_page": 5,
-    "locator": "§3.5 / Figure 2; reader questions"
-  },
-  {
-    "week": 2,
-    "page": 40,
-    "title": "다음 논문에서도, 같은 순서로 묻는다.",
-    "layout": "paper",
-    "sources": [
-      "ALEXNET"
-    ],
-    "minutes": 1,
-    "phase": 7,
     "paper_page": 1,
-    "locator": "primary source / reading recap"
+    "locator": "논문 전체 · 개인 기록"
   }
 ]

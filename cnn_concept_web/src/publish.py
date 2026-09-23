@@ -28,7 +28,7 @@ lines += ['', '## 확인 결과', '',
           '- 화면·인쇄 레이아웃 자동 검사에서 넘침 0건.',
           '- 390px 모바일 화면에서 가로 스크롤 없음.',
           '- 브라우저 JavaScript 오류 0건.',
-          '- 합성곱 창의 위치와 계산값(3 → 0), 논문 읽기 해설 펼침·접기, 원문 캡처 로딩, 주차 탭, 목차 이동 확인.',
+          '- 합성곱 창의 위치와 계산값(3 → 0), 원문 페이지 링크, 원문 캡처 로딩, 주차 탭, 목차 이동 확인.',
           '- PDF 텍스트 추출·페이지 수·링크 확인. 전체 페이지 축소 미리보기와 주요 페이지 확대 시각 검토.',
           '- 주차 폴더의 lecture.pdf에 개정판 복사. 배포 ZIP 무결성 검사.', '',
           '## 범위', '',
@@ -56,7 +56,7 @@ with zipfile.ZipFile(standalone, 'w', zipfile.ZIP_DEFLATED) as archive:
 
 student = ROOT / 'AIM_2026_2_수강생배포.zip'
 with zipfile.ZipFile(student, 'w', zipfile.ZIP_DEFLATED) as archive:
-    archive.writestr('README.md', '# AIM 2026 가을학기 수강생 자료\n\n6주 × 90분 과정입니다. CNN 1·2주차는 cnn_concept_web/index.html 또는 주차별 lecture.pdf로 공부합니다. 1주차는 MNIST 개념28페이지, 2주차는 AlexNet 논문 리딩40페이지입니다. 기존 CNN PPT는 이전 판본입니다. 3–6주차는 기존 PPT·PDF를 사용합니다.\n\nCNN 코딩 실습은 수업 외 선택 활동입니다. practice.ipynb를 Colab에 업로드하고 homework_optional.ipynb는 자율 과제로 사용하세요. 환경설정.md에 실행 방법이 있습니다.\n\n리더 해설은 별도 보관하며 이 수강생 ZIP에는 포함하지 않았습니다.\n')
+    archive.writestr('README.md', '# AIM 2026 가을학기 수강생 자료\n\n6주 × 90분 과정입니다. CNN 1·2주차는 cnn_concept_web/index.html 또는 주차별 lecture.pdf로 공부합니다. 1주차는 MNIST 개념28페이지, 2주차는 AlexNet 논문 리딩22페이지(초반 CNN 복습 6페이지 포함)입니다. 기존 CNN PPT는 이전 판본입니다. 3–6주차는 기존 PPT·PDF를 사용합니다.\n\nCNN 코딩 실습은 수업 외 선택 활동입니다. practice.ipynb를 Colab에 업로드하고 homework_optional.ipynb는 자율 과제로 사용하세요. 환경설정.md에 실행 방법이 있습니다.\n\n리더 해설은 별도 보관하며 이 수강생 ZIP에는 포함하지 않았습니다.\n')
     archive.write(ROOT / '환경설정.md', '환경설정.md')
     archive.writestr('CNN_실습_안내.md', '# CNN 개념 연계 실습\n\n1·2주차 폴더의 concept_practice.ipynb를 Colab에서 열고 위부터 실행하세요. CPU로 실행합니다. 1주차는 실제 MNIST 약11MB 최초 다운로드가 필요하며, 2주차는 내부 합성 데이터를 사용합니다.\n\n1주차: 과제 구분·사람의 단서·CNN 용어·실제 MNIST 분류. 2주차 강의는 AlexNet 원문 분석이며, 기존 노트북의 배경·혼동 행렬 실험은 별도 선택 확장입니다.\n\n1주차 전체 실습은 별도45–50분이며 준비·학습 후6–7절을 짧게 시연할 수 있습니다. 2주차 기존 노트북은 원문 재현이 아니며 수업 외 확장 시간에 사용합니다. 기존 practice.ipynb는 실제 이미지 확장 실습입니다.\n')
     for folder in sorted(ROOT.glob('week*')):

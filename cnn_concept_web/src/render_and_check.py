@@ -15,7 +15,7 @@ def check_layout(page):
         if(b.bottom>r.bottom+1||b.right>r.right+1||b.left<r.left-1)issues.push({page:s.id,element:sel,reason:'outside page',bottom:b.bottom-r.bottom});
       }
       if(s.classList.contains('paper-sheet')){
-        const body=s.querySelector('.paper-body'),b=body.getBoundingClientRect(),head=s.querySelector('.page-head').getBoundingClientRect(),take=s.querySelector('.takeaway').getBoundingClientRect();
+        const body=s.querySelector('.paper-body'),b=body.getBoundingClientRect(),head=s.querySelector('.page-head').getBoundingClientRect(),take=s.querySelector('.footer').getBoundingClientRect();
         if(body.scrollHeight>body.clientHeight+2)issues.push({page:s.id,element:'.paper-body',reason:'content too tall',extra:body.scrollHeight-body.clientHeight});
         for(const child of body.children){const q=child.getBoundingClientRect();if(q.top<head.bottom-1||q.bottom>take.top+1||q.right>r.right-10||q.left<r.left+10)issues.push({page:s.id,element:child.className,reason:'body overlaps another region',top:q.top-head.bottom,bottom:q.bottom-take.top});}
       }else if(!s.classList.contains('cover')){
@@ -40,13 +40,10 @@ with sync_playwright() as p:
     slider.fill('0');slider.dispatch_event('input')
     assert '반응 3' in page.locator('.book[data-week="1"] .conv-output').inner_text()
     page.locator('[data-week-select="2"]').click()
-    assert page.locator('.book[data-week="2"] .sheet').count()==40
-    page.locator('.paper-answer summary').click()
-    assert page.locator('.paper-answer').evaluate('(x)=>x.open')
-    assert page.locator('.paper-answer p').is_visible()
+    assert page.locator('.book[data-week="2"] .sheet').count()==len(W2)
     assert page.locator('.paper-capture img').evaluate_all('(xs)=>xs.every(x=>x.complete&&x.naturalWidth>0)')
+    assert page.locator('.book[data-week="2"] .footer a').evaluate_all('(xs)=>xs.every(x=>x.href.includes("#page="))')
     screen_issues+=check_layout(page)
-    page.locator('.paper-answer summary').click()
     page.locator('#open-toc').click();assert page.locator('#toc').evaluate('(x)=>x.open')
     page.locator('#toc a[href="#w1-p13"]').click();assert page.locator('body').get_attribute('data-week')=='1'
     assert not page.locator('#toc').evaluate('(x)=>x.open')
@@ -82,12 +79,12 @@ with sync_playwright() as p:
     browser.close()
 
 for week in [1,2]:
-    files=sorted(OUT.glob(f'week{week}_*.png'))
+    files=[OUT/f'week{week}_{i:02d}.png' for i in range(1,len(W1 if week==1 else W2)+1)]
     canvas=Image.new('RGB',(1200,((len(files)+3)//4)*232),'#d9dfd5');draw=ImageDraw.Draw(canvas)
     for i,f in enumerate(files):
         x=i%4*300;y=i//4*232
         canvas.paste(Image.open(f).resize((290,205)),(x,y));draw.text((x+5,y+208),f'W{week} / {i+1:02d}',fill='#1d302d')
     canvas.save(OUT/f'contact_week{week}.png')
-report={'pdfs':pdfs,'screen_layout_issues':screen_issues,'print_layout_issues':print_issues,'mobile_width':mobile_width,'mobile_week2':mobile_week2,'javascript_errors':errors,'interactions':['convolution response 3 -> 0','filter position','paper answer reveal/hide and original captures loaded','week tabs','TOC navigation'],'font':'Noto Sans KR (SIL OFL bundled)'}
+report={'pdfs':pdfs,'screen_layout_issues':screen_issues,'print_layout_issues':print_issues,'mobile_width':mobile_width,'mobile_week2':mobile_week2,'javascript_errors':errors,'interactions':['convolution response 3 -> 0','filter position','original captures loaded and source links located','week tabs','TOC navigation'],'font':'Noto Sans KR (SIL OFL bundled)'}
 (OUT/'validation.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps(report,ensure_ascii=False,indent=2))

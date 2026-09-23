@@ -5,8 +5,8 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 
 ## 먼저 열 파일
 
-**CNN 개정판 (1주차 2026-09-16 / 2주차 2026-09-22):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
-1주차28페이지·2주차40페이지, 각각90분입니다. 1주차는 사람의 분류와 MNIST, 2주차는 AlexNet 원문을 따라 문제·개념·수식·실험·결론을 읽습니다.
+**CNN 개정판 (1주차 2026-09-16 / 2주차 2026-09-23):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
+1주차28페이지·2주차22페이지, 각각90분입니다. 1주차는 사람의 분류와 MNIST, 2주차는 초반 CNN 복습 6페이지 뒤에 AlexNet 원문의 문제·구조·학습·실험·Discussion을 읽습니다.
 
 **개념 연계 실습:** [1주차 노트북](week01_cnn_basics/concept_practice.ipynb) · [2주차 노트북](week02_cnn_advanced/concept_practice.ipynb).
 1주차는 과제 구분 → 사람의 분류 → CNN 기초 용어 → 실제 MNIST로 진행합니다. 개정 실습은 MNIST를 처음 약11MB 다운로드해 CPU로 실행합니다. 2주차 기존 노트북은 내부 합성 데이터의 배경 지름길을 관찰하는 선택 확장입니다. AlexNet 논문 리딩 수업과 별도이며 논문 재현 실험이 아닙니다. 전체 코딩 실습은 별도 시간을 배정하며, 각 주차 README에서 짧은 시연 구간을 확인하세요.
@@ -27,7 +27,7 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 | 5 | [VAE ①](week05_vae_basics/README.md) | posterior, prior, 재매개화, ELBO | MNIST VAE, 재구성·prior 샘플·보간 | 재매개화, loss, latent 차원, AE 비교 |
 | 6 | [VAE ②](week06_vae_advanced/README.md) | β, collapse 진단, CVAE | β 3조건 비교, traversal, 조건부 생성 | warm-up, 조건 격자, 스케줄 비교, 차원 진단 |
 
-**개정 CNN 분량:** 웹북·PDF 총68페이지, 주차별 리더 가이드, MNIST 관찰과 AlexNet 논문 읽기 활동, 개인 읽기 기록지.
+**개정 CNN 분량:** 웹북·PDF 총50페이지, 주차별 리더 가이드, MNIST 관찰과 AlexNet 논문 읽기 활동, 개인 읽기 기록지.
 기존 PPT 6개 × 40장 = **240장**, 실습 6개, 자율 과제 6개, 리더 해설 노트북 6개도 보관합니다. CNN PPT는 이전 코드 중심 판본이며 새 PDF와 내용·페이지가 다릅니다.
 각 PPT에는 90분 핵심 28장과 심화·시각 보충·참고 12장이 있습니다. 40장을 모두 강의식으로 읽는 방식보다
 핵심 28장으로 수업하고 부록은 질문 대응과 자율 복습에 사용하는 구성을 권합니다.
@@ -35,7 +35,7 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 
 ## 3–6주차 및 기존 PPT의 90분 진행표
 
-CNN 개정 수업은 각 PDF 2페이지의 별도 90분 진행표를 사용합니다. 아래 표의 코딩 실습 시간을 추가로 합치지 않습니다.
+CNN 개정 수업의 90분 진행표는 주차별 README를 사용합니다. 아래 표의 코딩 실습 시간을 추가로 합치지 않습니다.
 
 | 시간 | PPT | 활동 | 참가자 산출물 |
 |---|---|---|---|

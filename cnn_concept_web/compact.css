@@ -1,0 +1,51 @@
+/* Week 2 only. A consistent academic page, with the source figure as the focus. */
+.paper-sheet{background:#fff;color:#202624;padding:34px 48px 27px}
+.paper-sheet .masthead{letter-spacing:.025em;font-size:11px;font-weight:500;color:#626c66;border-color:#acb8b0;padding-bottom:13px;text-transform:none}
+.paper-sheet .page-head{margin-top:25px}
+.paper-sheet .kicker{font-size:12px;letter-spacing:.015em;font-weight:650;color:#376e5f;margin-bottom:8px}
+.paper-sheet .page-head h2{font-size:34px;font-weight:750;letter-spacing:-1.1px;line-height:1.32;margin:0 0 10px}
+.paper-sheet .lead{font-size:17px;line-height:1.6;max-width:100%;color:#58615c}
+.paper-sheet .paper-body{display:flex;flex-direction:column;justify-content:center;gap:22px;flex:1;min-height:0;padding:24px 0 20px}
+.paper-sheet .paper-body>*,.paper-sheet .paper-columns>div{min-width:0;flex-shrink:0}
+.paper-sheet .paper-columns{display:grid;grid-template-columns:1fr 1fr;gap:38px;align-items:center}
+.paper-sheet .paper-columns.figure-left{grid-template-columns:1.3fr 1fr}
+.paper-sheet .paper-columns.table-left{grid-template-columns:1.4fr 1fr}
+.paper-sheet .body-copy{font-size:18px;line-height:1.85;word-break:keep-all;overflow-wrap:break-word}
+.paper-sheet .body-copy p{margin:0 0 18px}
+.paper-sheet .body-copy p:last-child{margin-bottom:0}
+.paper-sheet .body-copy b{font-weight:700;color:#202624}
+.paper-sheet .muted{color:#69746d;font-size:15px}
+.paper-sheet .paper-note{font-size:14px;line-height:1.8;color:#626c66;margin:0;padding:13px 0 0;border-top:1px solid #dae0db;word-break:keep-all}
+.paper-sheet .paper-capture{margin:0;text-align:left;min-width:0}
+.paper-sheet .paper-capture img{display:block;width:100%;height:auto;object-fit:contain;object-position:center}
+.paper-sheet .paper-capture figcaption{font-size:11px;line-height:1.65;color:#667469;margin-top:10px;text-align:center}
+.paper-sheet .paper-capture a{text-decoration:none}
+.paper-sheet .original-diagram svg{display:block;width:100%;max-height:300px;height:auto;font-family:Noto,sans-serif}
+.paper-sheet .original-diagram>span{display:block;font-size:10px;color:#718078;text-align:center;margin-top:9px}
+.paper-sheet .compact-equation{border-left:3px solid #497c69;padding:14px 20px;background:#f4f7f3}
+.paper-sheet .compact-equation>div{font-family:Noto,sans-serif;font-size:22px;font-weight:600;line-height:1.6}
+.paper-sheet .compact-equation p{font-size:13px;color:#5c6a62;line-height:1.8;margin:9px 0 0;word-break:keep-all}
+.paper-sheet .paper-columns .compact-equation{margin-bottom:20px}
+.paper-sheet .reading-table{border-collapse:collapse;width:100%;font-size:17px;line-height:1.75;word-break:keep-all;overflow-wrap:break-word}
+.paper-sheet .reading-table th{font-size:13px;color:#506057;background:#f4f6f3;text-align:left;padding:12px 16px;font-weight:650;border-top:1px solid #7d9585;border-bottom:1px solid #bccbc0}
+.paper-sheet .reading-table td{padding:17px 16px;border-bottom:1px solid #d9e0da;vertical-align:top}
+.paper-sheet .reading-table td:first-child{font-weight:650}
+.paper-sheet .reading-table th:first-child{width:23%}
+.paper-sheet .table-note{font-size:12px;color:#667469}
+.paper-sheet .process-strip{display:flex;align-items:stretch;border-top:1px solid #aabdaf;border-bottom:1px solid #aabdaf;padding:19px 0}
+.paper-sheet .process-strip>div{flex:1;min-width:0;padding:0 24px;border-right:1px solid #d0dcd2}
+.paper-sheet .process-strip>div:first-child{padding-left:0}
+.paper-sheet .process-strip>div:last-child{border:0}
+.paper-sheet .process-strip b{display:block;font-size:19px;font-weight:650;margin-bottom:8px}
+.paper-sheet .process-strip span{font-size:15px;line-height:1.7;color:#5c6a61}
+.paper-sheet .paper-points{padding-left:21px;font-size:18px;line-height:1.85}
+.paper-sheet .footer{border-top:1px solid #b8c7bc;padding-top:12px;font-size:10px;color:#69766d}
+.paper-sheet .footer .folio{font-size:13px;color:#2d5846;font-weight:500}
+.paper-sheet .footer a{border:0}
+.paper-sheet.paper-title .page-head h2{font-size:55px;letter-spacing:-2px}
+.paper-sheet.paper-title .lead{font-size:21px;max-width:880px;color:#354b3e}
+.paper-sheet.paper-title .paper-capture{max-width:720px;align-self:flex-start;width:100%}
+.paper-sheet.paper-title .paper-capture img{object-position:left}
+.paper-sheet.paper-title .paper-capture figcaption{text-align:left}
+@media screen and (min-width:760px) and (max-width:1180px){.paper-sheet{height:auto;min-height:793px}.paper-sheet .paper-body{min-height:480px}.paper-sheet .page-head h2{font-size:31px}}
+@media screen and (max-width:759px){.paper-sheet{height:auto;padding:26px 23px}.paper-sheet .paper-body{padding:25px 0;gap:23px}.paper-sheet .page-head h2{font-size:28px}.paper-sheet.paper-title .page-head h2{font-size:43px}.paper-sheet.paper-title .lead{font-size:19px}.paper-sheet .paper-columns,.paper-sheet .paper-columns.figure-left,.paper-sheet .paper-columns.table-left{grid-template-columns:1fr;gap:25px}.paper-sheet .body-copy{font-size:17px}.paper-sheet .reading-table{font-size:13px;line-height:1.8}.paper-sheet .reading-table td,.paper-sheet .reading-table th{padding:11px 7px}.paper-sheet .reading-table th{font-size:11px}.paper-sheet .compact-equation>div{font-size:17px;overflow-wrap:anywhere}.paper-sheet .compact-equation{padding:13px}.paper-sheet .process-strip{flex-direction:column;gap:14px}.paper-sheet .process-strip>div{padding:0;border:0}.paper-sheet .process-strip b{font-size:18px}.paper-sheet .process-strip span{font-size:14px}.paper-sheet .paper-capture img{max-height:none!important}.paper-sheet .footer .sources{font-size:8px}.paper-sheet .paper-note{font-size:13px}.paper-sheet .masthead{font-size:10px;gap:12px}.paper-sheet .lead{font-size:16px}}
