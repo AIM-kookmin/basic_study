@@ -5,11 +5,11 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 
 ## 먼저 열 파일
 
-**CNN 개정판 (1주차 2026-09-16):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
-각 28페이지, 주차별 90분입니다. 인간의 시각과 분류에서 출발해 CNN의 구조·학습·일반화를 도식과 토론으로 설명합니다.
+**CNN 개정판 (1주차 2026-09-16 / 2주차 2026-09-22):** [개념 웹북](cnn_concept_web/index.html) · [1주차 PDF](week01_cnn_basics/lecture.pdf) · [2주차 PDF](week02_cnn_advanced/lecture.pdf) · [통합 PDF](cnn_concept_web/CNN_개념강의_통합.pdf).
+1주차28페이지·2주차40페이지, 각각90분입니다. 1주차는 사람의 분류와 MNIST, 2주차는 AlexNet 원문을 따라 문제·개념·수식·실험·결론을 읽습니다.
 
 **개념 연계 실습:** [1주차 노트북](week01_cnn_basics/concept_practice.ipynb) · [2주차 노트북](week02_cnn_advanced/concept_practice.ipynb).
-1주차는 과제 구분 → 사람의 분류 → CNN 기초 용어 → 실제 MNIST로 진행합니다. 개정 실습은 MNIST를 처음 약11MB 다운로드해 CPU로 실행합니다. 2주차는 내부 합성 데이터의 배경 지름길을 관찰합니다. 전체 코딩 실습은 별도 시간을 배정하며, 각 주차 README에서 짧은 시연 구간을 확인하세요.
+1주차는 과제 구분 → 사람의 분류 → CNN 기초 용어 → 실제 MNIST로 진행합니다. 개정 실습은 MNIST를 처음 약11MB 다운로드해 CPU로 실행합니다. 2주차 기존 노트북은 내부 합성 데이터의 배경 지름길을 관찰하는 선택 확장입니다. AlexNet 논문 리딩 수업과 별도이며 논문 재현 실험이 아닙니다. 전체 코딩 실습은 별도 시간을 배정하며, 각 주차 README에서 짧은 시연 구간을 확인하세요.
 
 1. 리더는 [리더 운영 안내](리더_운영안내.md)와 [환경설정](환경설정.md)을 확인합니다.
 2. CNN 1·2주차는 개념 웹북 또는 새 `lecture.pdf`로 발표합니다. 해설은 [웹북의 리더 가이드](cnn_concept_web/README.md)를 사용합니다. 3–6주차는 `lecture.pptx`와 발표자 노트를 사용합니다.
@@ -21,13 +21,13 @@ CNN 2주, 어텐션·언어 모델 2주, VAE 2주로 구성했습니다. Google 
 | 주차 | 강의·폴더 | 핵심 개념 | 실습 결과물 | 자율 과제 |
 |---|---|---|---|---|
 | 1 | [CNN ①](week01_cnn_basics/README.md) | 분류·인식·검출 구분, 사람의 단서, CNN 용어 | 실제 MNIST 입력·학습·예측·오분류 | FashionMNIST MLP/CNN, 특징 맵, 이동 강건성 |
-| 2 | [CNN ②](week02_cnn_advanced/README.md) | 형태·질감, 지름길, 증강, 잔차 연결, 일반화 | 사진 40장의 수집·분할·평가 설계 | CIFAR10 증강·residual 비교, 오류 분석 |
+| 2 | [CNN ②](week02_cnn_advanced/README.md) | AlexNet 논문 리딩, CNN 구조·학습·실험 근거 | 네 가지 질문으로 작성한 논문 읽기 기록 | 기존 CIFAR10·배경 지름길 실습은 선택 확장 |
 | 3 | [Attention ①](week03_attention_basics/README.md) | Q/K/V, scaling, mask, next-token | 손계산 heatmap, bigram/attention LM, 생성 | attention 구현, shift, 누출 탐지, 문맥 실험 |
 | 4 | [Attention ②](week04_transformer_lm/README.md) | MHA, pre-norm, FFN, sampling | TinyTransformer, top-k 생성, checkpoint 복원 | top-k, block, head 비교, top-p |
 | 5 | [VAE ①](week05_vae_basics/README.md) | posterior, prior, 재매개화, ELBO | MNIST VAE, 재구성·prior 샘플·보간 | 재매개화, loss, latent 차원, AE 비교 |
 | 6 | [VAE ②](week06_vae_advanced/README.md) | β, collapse 진단, CVAE | β 3조건 비교, traversal, 조건부 생성 | warm-up, 조건 격자, 스케줄 비교, 차원 진단 |
 
-**개정 CNN 분량:** 웹북·PDF 총 56페이지, 주차별 리더 가이드, 코딩 없는 활동 2개와 웹 관찰 도구 2개.
+**개정 CNN 분량:** 웹북·PDF 총68페이지, 주차별 리더 가이드, MNIST 관찰과 AlexNet 논문 읽기 활동, 개인 읽기 기록지.
 기존 PPT 6개 × 40장 = **240장**, 실습 6개, 자율 과제 6개, 리더 해설 노트북 6개도 보관합니다. CNN PPT는 이전 코드 중심 판본이며 새 PDF와 내용·페이지가 다릅니다.
 각 PPT에는 90분 핵심 28장과 심화·시각 보충·참고 12장이 있습니다. 40장을 모두 강의식으로 읽는 방식보다
 핵심 28장으로 수업하고 부록은 질문 대응과 자율 복습에 사용하는 구성을 권합니다.

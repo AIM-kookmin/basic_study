@@ -1,56 +1,48 @@
-# 2주차 — 잘 맞혔다고, 잘 본 것일까?
+# 2주차 — AlexNet으로 배우는 CNN과 논문 리딩
 
-2026-09-15 개념 중심 개정판. **28페이지 · 90분**, 코딩 없이 진행할 수 있습니다.
+2026-09-22 개정 · **40페이지 · 90분**. Python·PyTorch 기초와 1주차 CNN 개념을 배운 참가자를 대상으로 합니다. 코딩 없이 논문 읽기·개념 설명·실험 분석·개인 정리로 진행합니다.
 
-## 개정 수업 자료와 목표
+- [발표 PDF](lecture.pdf)
+- [웹 발표 자료](../cnn_concept_web/index.html?week=2)
+- [페이지별 리더 가이드](../cnn_concept_web/CNN_2주차_리더가이드.md)
+- [나의 논문 읽기 기록지](논문_읽기_기록지.md)
+- [원문 PDF · NeurIPS](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)
 
-- [개념 웹북](../cnn_concept_web/index.html?week=2) · [2주차 PDF](lecture.pdf)
-- [페이지별 리더 해설과 활동 답안](../cnn_concept_web/CNN_2주차_리더가이드.md)
-- [전체 웹북 안내](../cnn_concept_web/README.md)
+## 읽을 논문
 
-## 개념 연계 실습 · 바로 실행
+Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton (2012), *ImageNet Classification with Deep Convolutional Neural Networks*.
 
-[concept_practice.ipynb](concept_practice.ipynb) · [Colab에서 열기](https://colab.research.google.com/github/AIM-kookmin/basic_study/blob/main/week02_cnn_advanced/concept_practice.ipynb)
+초록과 Introduction에서 기존 문제·필요한 조건·해결책을 찾습니다. 이어 문제 정의를 재구성하고 CNN의 설계 원리를 개념으로 먼저 설명한 다음 필요한 수식을 읽습니다. 원문 그래프·표·시각화를 분석하고 Discussion을 읽은 뒤, 네 가지 질문으로 스스로 정리합니다.
 
-원/정사각형의 배경과 라벨이 강하게 연결된 데이터와 배경을 균형 있게 만든 데이터를 비교합니다. 같은 초기값·학습 예산으로 학습한 CNN 두 개에 같은 물체의 배경을 바꿔 제시하고, 혼동 행렬·예측 변경·물체 제거 결과로 단서를 추론합니다. 데이터는 내부 생성하며 1주차 실행 상태가 필요 없습니다.
+이 논문에는 독립된 **Problem statement** 절이 없습니다. §1·§2·§3.5·§5에서 관련 정보를 모읍니다. 마지막 본문 절의 제목은 **Discussion**입니다.
 
-- 수업 전: 0–2절 실행으로 모델 두 개를 준비합니다. 처음부터 읽는 경우 준비 활동 5–10분을 배정합니다.
-- 수업 15분: 3–5절. PDF 23–24쪽의 종이 설계 활동 대신 실행할 수 있습니다.
-- 확장 15–25분: 6–7절의 통제 조건 확인·보고서·자율 실험.
-- [실행 검증 보고서](../cnn_concept_web/실습_검증_보고서.md)
+## 90분 진행표
 
-## 개념 강의 흐름
+| 시간 | 페이지 | 내용 |
+|---|---|---|
+| 00–08 | 1–4 | 주장·근거·질문 메모, 제목·목차에서 읽기 경로 찾기 |
+| 08–20 | 5–9 | 초록·서론: 기존 문제 → 필요한 것 → 제안 |
+| 20–30 | 10–13 | 입력·출력·목표·제약·데이터·Top-1/Top-5 |
+| 30–58 | 14–25 | 필터·채널·공유·계층·AlexNet 구조·ReLU·pooling·LRN·증강·Dropout |
+| 58–65 | 26–28 | 개념 이후 수식: 합성곱, softmax/손실, 원문 LRN |
+| 65–80 | 29–35 | Figure 1, Tables 1–2, 구성 요소 비교, Figure 4 |
+| 80–83 | 36 | Discussion: 지지된 주장·범위·남은 질문 |
+| 83–90 | 37–40 | 네 가지 개인 정리, 예시, 다음 논문에 적용 |
 
-정답을 맞힌 분류기가 어떤 단서를 보았는지 묻습니다. 형태·질감·배경의 차이에서 출발해 데이터 수집, 증강, 모델 구조와 일반화 평가로 연결합니다.
+9페이지는 짝 설명, 32페이지는 표의 주장 판별, 38페이지는 개인 기록 활동입니다. 코딩 실습 시간을 추가로 합산하지 않습니다. 웹의 32페이지 해설은 클릭해 펼칩니다. PDF에는 해설이 함께 있으므로 질문부터 읽게 한 뒤 해설합니다.
 
-- 형태·질감·배경 지름길이 분류에 미치는 영향을 설명한다.
-- 증강의 의미와 라벨을 보존하지 못하는 변환을 구분한다.
-- 등변성·불변성, 잔차 연결, 정규화의 역할을 설명한다.
-- 정확도·손실·혼동 행렬을 함께 보고 실패 원인을 가설로 만든다.
-- 시각화의 한계를 이해하고 단서를 바꾸는 통제 실험을 설계한다.
+## 원문 근거 사용
 
-PDF 2페이지의 90분 진행표를 따릅니다. 23–24페이지에서는 사진 40장으로 컵/병 분류기의 수집·분할·평가 계획을 설계합니다(15분). 웹 8페이지에서는 이동·반전·가림으로 남는 단서를 비교합니다.
+Figures 1–4, Tables 1–2, LRN 수식과 제목·짧은 구절을 공식 PDF에서 직접 캡처했습니다. 각 캡처에 원문 페이지·번호·링크가 있으며, 한국어 해설과 자체 제작 개념도는 구별합니다. [캡처 기록](../cnn_concept_web/assets/alexnet/provenance.json)에 원문 해시·좌표·이미지 해시를 보관합니다.
 
-아래는 **선택 코딩 실습 및 이전 PPT 판본** 안내입니다. `lecture.pptx`와 `leader_guide.md`는 새 PDF의 페이지와 대응하지 않습니다. 개념 강의 출처는 새 PDF 마지막 페이지에 있습니다.
+2010/2012, validation/test, Top-1/Top-5, 단일 모델/앙상블을 구분합니다. 특히 15.3%는 추가 사전학습 모델을 포함한 앙상블의 Top-5 시험 오류율입니다. CNN 구조 자체를 처음 발명한 논문으로 소개하지 않습니다.
 
-## 선택 코딩 실습 목표
-- CIFAR10에서 증강과 정규화의 역할을 구분한다.
-- Residual block을 구현하고 공정한 비교 실험을 한다.
-- 오분류·클래스별 성능·일반화 간격으로 결과를 해석한다.
+## 기존 노트북과 PPT — 별도 선택 확장
 
-## 준비와 운영
-1주차 CNN과 학습 루프를 복습한다. CIFAR10은 최초 약 170MB 다운로드가 필요하다. 학습 데이터 일부와 작은 모델로 시작하며 고성능 벤치마크 재현을 목표로 하지 않는다.
+- [concept_practice.ipynb](concept_practice.ipynb): 합성 데이터의 배경 지름길을 비교하는 기존 실습. **AlexNet 재현 실험이 아닙니다.** 원문을 읽은 후 통제 실험·일반화 질문을 더 탐구할 때 사용합니다. 준비 0–2절, 관찰 3–5절, 확장 6–7절이며 현재 PDF 페이지와 일대일 대응하지 않습니다.
+- [Colab에서 기존 확장 실습 열기](https://colab.research.google.com/github/AIM-kookmin/basic_study/blob/main/week02_cnn_advanced/concept_practice.ipynb)
+- `practice.ipynb`, `homework_optional.ipynb`: CIFAR10 증강·잔차 연결 등의 별도 실습·자율 과제. CIFAR10 최초 약170MB 다운로드가 필요합니다.
+- `lecture.pptx`, `leader_guide.md`: 이전 코드 중심 판본. 새 PDF의 페이지 번호·내용과 다릅니다.
+- `leader_solution.ipynb`: 기존 자율 과제 참고 구현.
 
-개념 수업 후 별도로 진행하는 선택 실습입니다. 실습 노트북은 위에서 아래로 실행하며, 과제는 자율입니다.
-
-## 파일
-- `lecture.pptx`: 발표자 노트 포함 강의안
-- `practice.ipynb`: 설명·실행 코드·관찰 질문이 있는 독립 실행 실습
-- `homework_optional.ipynb`: 독립 실행 준비 코드 + 단계별 자율 과제
-- `leader_solution.ipynb`: 리더용 과제 해설 및 실행 가능한 참고 구현
-- `leader_guide.md`: 슬라이드별 설명과 질문 답안
-
-## 참고 문헌
-- [PyTorch · 이미지 분류 튜토리얼](https://docs.pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html)
-- [Conv2d · 공식 API](https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html)
-- [Deep Residual Learning · He et al.](https://arxiv.org/abs/1512.03385)
+원문 분석 수업에서 ImageNet 전체 학습이나 AlexNet 성능 재현을 요구하지 않습니다.

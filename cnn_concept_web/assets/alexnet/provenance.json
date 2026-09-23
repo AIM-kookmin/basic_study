@@ -1,0 +1,194 @@
+{
+  "title": "ImageNet Classification with Deep Convolutional Neural Networks",
+  "authors": [
+    "Alex Krizhevsky",
+    "Ilya Sutskever",
+    "Geoffrey E. Hinton"
+  ],
+  "year": 2012,
+  "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+  "source_pdf_sha256": "90137160c57217953d5f61857e64ca58e85f06e1b13b4f475c918b1b582b9771",
+  "method": "PyMuPDF PDF rendering at 4 pixels per PDF point; crop only; no redrawing or retouching.",
+  "captures": [
+    {
+      "file": "title.png",
+      "page": 1,
+      "crop_pdf_points": [
+        122,
+        105,
+        490,
+        150
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Title",
+      "width": 1472,
+      "height": 180,
+      "sha256": "63c400dbeb7e6076eea94e8bd144b2613e62da2d6d6439088c7c59ba65cb6883"
+    },
+    {
+      "file": "abstract_excerpt.png",
+      "page": 1,
+      "crop_pdf_points": [
+        142,
+        275,
+        364,
+        290
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Abstract, opening eight words only",
+      "width": 888,
+      "height": 60,
+      "sha256": "8654b0549ef0439e0f59b269b359d976c13b897ac23beb25223a326e78d49be4"
+    },
+    {
+      "file": "introduction.png",
+      "page": 1,
+      "crop_pdf_points": [
+        106,
+        445,
+        194,
+        462
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Section 1 heading",
+      "width": 352,
+      "height": 68,
+      "sha256": "0e28be70cf46215baa633e9c623aeae1b6ca4ed112bb8a90b340906dfc99f21b"
+    },
+    {
+      "file": "relu_plot.png",
+      "page": 3,
+      "crop_pdf_points": [
+        331,
+        111,
+        506,
+        267
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Figure 1, graph only",
+      "width": 700,
+      "height": 624,
+      "sha256": "1047a1c8fe1d071ece7875ae5325d8330f04d10a4fc80d2cd357f3982d160abc"
+    },
+    {
+      "file": "lrn_equation.png",
+      "page": 4,
+      "crop_pdf_points": [
+        207,
+        171,
+        404,
+        212
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Section 3.3, LRN equation",
+      "width": 788,
+      "height": 164,
+      "sha256": "4d4d23cfa85f1fa90b0e37f5930f73359d744e06196e21124d6dd87979760ddd"
+    },
+    {
+      "file": "architecture.png",
+      "page": 5,
+      "crop_pdf_points": [
+        106,
+        80,
+        506,
+        210
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Figure 2, diagram only",
+      "width": 1600,
+      "height": 520,
+      "sha256": "c698f7363cae54fa800fd2bc28373f6590caf8d6c18c1e92f934ab854628f45f"
+    },
+    {
+      "file": "filters.png",
+      "page": 6,
+      "crop_pdf_points": [
+        347,
+        426,
+        505,
+        489
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Figure 3, learned kernels only",
+      "width": 632,
+      "height": 252,
+      "sha256": "d40d0566a400557a5b10ec92932124ecd9b1de7d15c888465fbddfddc711d83f"
+    },
+    {
+      "file": "table2010.png",
+      "page": 7,
+      "crop_pdf_points": [
+        340,
+        229,
+        505,
+        283
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Table 1, table only",
+      "width": 660,
+      "height": 216,
+      "sha256": "5d00fd5d32ab15e65e443a177a2d2c0fa60c06014276c13df8377013f4feb49e"
+    },
+    {
+      "file": "table2012.png",
+      "page": 7,
+      "crop_pdf_points": [
+        250,
+        427,
+        503,
+        505
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Table 2, table only",
+      "width": 1012,
+      "height": 312,
+      "sha256": "48b16c88e554556e4eb6da945ff1aecdae1d520ea20b2c40154afdd08ea3b2dd"
+    },
+    {
+      "file": "predictions.png",
+      "page": 8,
+      "crop_pdf_points": [
+        109,
+        81,
+        292,
+        232
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Figure 4 left, predictions",
+      "width": 732,
+      "height": 604,
+      "sha256": "5136cadf388f6f928e76a64cf4496fa0697e657af9d4c9c527182f43031cea3d"
+    },
+    {
+      "file": "neighbors.png",
+      "page": 8,
+      "crop_pdf_points": [
+        294,
+        81,
+        504,
+        232
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Figure 4 right, feature neighbors",
+      "width": 840,
+      "height": 604,
+      "sha256": "931b9bcba47d396e2d5367f7b74d0b3608b74fc0f921e1fbf4cb2c0adde4ded0"
+    },
+    {
+      "file": "discussion.png",
+      "page": 8,
+      "crop_pdf_points": [
+        106,
+        553,
+        184,
+        571
+      ],
+      "source_url": "https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf",
+      "locator": "Section 7 heading",
+      "width": 312,
+      "height": 72,
+      "sha256": "6c5a498ad52697811a2b4211620e9d1275543f19ff600caa2d11b852d5e1fff8"
+    }
+  ]
+}
